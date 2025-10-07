@@ -26,6 +26,9 @@ class BaseWindow:
     def set_debug_name(self, debug_name): 
         self.debug_name = debug_name
 
+    def get_debug_name(self): 
+        return self.debug_name
+
     @staticmethod
     def set_offset(offset_x, offset_y):
         BaseWindow.offset_x = offset_x
@@ -47,7 +50,7 @@ class BaseWindow:
 
     def update(self):
         self.color = self.extract_region()
-        # print('self.color updated: ', self.__class__.__name__, ', debug_name:', self.debug_name)
+        # print('self.color updated: ', self.__class__.__name__, ', debug_name:', self.debug_name, ', shape:', self.color.shape)
 
     @staticmethod
     def update_all():
@@ -156,26 +159,42 @@ class HLSWindow(StatusWindow):
 
 
 # 血量窗口
-# class BloodWindow(GrayWindow):
-class BloodWindow(StatusWindow):
-    def __init__(self, sx, sy, ex, ey, blood_gray_min=100, blood_gray_max=180):
+class BloodWindow(GrayWindow):
+    def __init__(self, sx, sy, ex, ey, blood_gray_min=60, blood_gray_max=100):
         super().__init__(sx, sy, ex, ey)
         self.blood_gray_min = blood_gray_min
         self.blood_gray_max = blood_gray_max
 
-    def process_color(self):
+        self.hp_count = 0
+        self.full_count = 0
+
+    def process_color(self): 
         super().process_color()
-        # cv2.imwrite('self.color.png', self.color)
-        # sames like the format is Blue-Green-Red
-        self.gray = self.color.copy()[:, :, 2]
-        if self.gray is not None:
-            middle_row = self.gray[self.gray.shape[0] // 2, :]
+        self.status = 0
+        self.color = cv2.cvtColor(self.color, cv2.COLOR_BGR2GRAY)
+        # print('process_color:', self.debug_name, ', shape:', self.color.shape)
+        # cv2.imwrite('self.color.%s.png' % (self.debug_name), self.color)
+        gray = self.color
+        if gray is not None: 
+            middle_row = gray[gray.shape[0] // 2, :]
+            self.full_count = len(middle_row)
+            # print(self.debug_name)
             # print('middle_row: ', middle_row)
-            clipped = np.clip(middle_row, self.blood_gray_min, self.blood_gray_max)
-            # print('clipped: ', clipped)
-            count = np.count_nonzero(clipped == middle_row)
-            total_length = len(middle_row)
-            self.status = (count / total_length) * 100
+            arr_index = np.where(middle_row > self.blood_gray_max)[0]
+            if len(arr_index) == 0: 
+                arr_index = np.where(middle_row < self.blood_gray_min)[0]
+                if len(arr_index) == self.full_count: 
+                    self.hp_count = 0
+                    self.status = 0
+                    return
+
+                self.hp_count = self.full_count
+                self.status = 100
+                return
+
+            self.hp_count = arr_index[0]
+
+            self.status = (self.hp_count / self.full_count) * 100
             '''
             print('window update, process_color, status detected:', self.status,
                     ', count:', count, ', total_length', total_length)
@@ -254,16 +273,6 @@ class SkillWindow(HLSWindow):
                 1 if self.skill_gray_min <= avg_gray <= self.skill_gray_max else 0
             )
 
-
-# 其他窗口可继承 BloodWindow 或 SkillWindow
-class MagicWindow(BloodWindow):
-    def __init__(self, sx, sy, ex, ey):
-        super().__init__(sx, sy, ex, ey, blood_gray_min=80, blood_gray_max=120)
-
-
-class EnergyWindow(BloodWindow):
-    def __init__(self, sx, sy, ex, ey):
-        super().__init__(sx, sy, ex, ey, blood_gray_min=135, blood_gray_max=165)
 
 
 class SkillTSWindow(SkillWindow):
@@ -352,7 +361,7 @@ def set_windows_offset(frame):
         BaseWindow.set_frame(frame)
         BaseWindow.update_all()
 
-        print(f"All windows offset by ({offset_x}, {offset_y})")
+        print(f"All windows offset by x: ({offset_x}, y: {offset_y})")
         return True
     else:
         print("Failed to find the game logo, offsets not set.")
@@ -385,13 +394,17 @@ def convert_coordinates(x1, y1, x2, y2):
 game_window = BaseWindow(0, 0, game_width, game_height)
 game_window.set_debug_name('game main window')
 
-# HP strip
-self_blood_window = BloodWindow(*convert_coordinates(70, 650, 490, 660))
-self_blood_window.set_debug_name('blood window')
+# player hp window
+player_hp_window = BloodWindow(*convert_coordinates(71 + 3, 650, 485, 660))
+player_hp_window.set_debug_name('player hp window')
+
+# boss hp window
+boss_hp_window = BloodWindow(*convert_coordinates(72 + 3, 60, 345, 70))
+boss_hp_window.set_debug_name('boss hp window')
 
 # 300 x 300 enemy district
 global_enemy_window = BaseWindow(500, 110, 800, 410)
-global_enemy_window.set_debug_name('enemy window')
+global_enemy_window.set_debug_name('boss body window')
 
 '''
 self_magic_window = MagicWindow(*convert_coordinates(141, 669, 366, 675))
@@ -413,10 +426,6 @@ hulu_window = HuluWindow(*convert_coordinates(82, 645, 88, 679))
 
 q_window = SkillWindow(*convert_coordinates(185, 542, 195, 551))
 
-# boss_blood_window = BloodWindow(*convert_coordinates(512, 609, 776, 616)) # 寅虎
-# boss_blood_window = BloodWindow(*convert_coordinates(460, 609, 836, 616)) # 虎先锋
-# boss_blood_window = BloodWindow(*convert_coordinates(510, 609, 776, 616)) # 广谋
-boss_blood_window = BloodWindow(*convert_coordinates(455, 609, 836, 616)) # 青背龙
 '''
 
 roi_x_size = 300  # ROI的宽度和高度（以游戏窗口中心为中心的矩形）
