@@ -18,8 +18,13 @@ console_handler.setLevel(logging.DEBUG)
 console_formatter = logging.Formatter("%(message)s")  # 仅显示纯消息
 console_handler.setFormatter(console_formatter)
 
+'''
 file_handler = logging.handlers.RotatingFileHandler(
     log_file_path, maxBytes=10 * 1024 * 1024, backupCount=5, encoding="utf-8"
+)
+'''
+file_handler = logging.FileHandler(
+    log_file_path, encoding="utf-8", mode='w'
 )
 file_handler.setLevel(logging.DEBUG)  # 文件记录所有级别
 file_formatter = logging.Formatter(
