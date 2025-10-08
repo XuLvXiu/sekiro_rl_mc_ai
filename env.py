@@ -171,8 +171,9 @@ class Env(object):
 
         self.previous_action_id = action_id
 
+        # wait for boss damage to take effect.
+        # how about player damage taken?
         if action_id == self.ATTACK_ACTION_ID: 
-            log.info('wait for boss damange taken after player attack')
             time.sleep(0.5)
 
 
@@ -200,7 +201,7 @@ class Env(object):
         if state['player_hp'] < 10: 
             return True
 
-        if state['boss_hp'] < 80: 
+        if state['boss_hp'] < 50: 
             return True
 
         return False
@@ -273,6 +274,8 @@ class Env(object):
     def cal_reward(self, new_state, action_id): 
         '''
         calculate the reward according to the action take and the new state
+
+        打法: 立足防御，找机会偷一刀，尽量少垫步，绝不贪刀，稳扎稳打。
         '''
 
         reward = 0
@@ -282,17 +285,14 @@ class Env(object):
         boss_hp = new_state['boss_hp']
 
         if self.previous_player_hp - player_hp > 10: 
-            reward -= 30
+            # reward -= 30
+            # the damage maybe caused by previous actions?
+            reward -= 1
             log_reward += 'player_hp-, '
 
         if self.previous_boss_hp - boss_hp > 3: 
             reward += 20
             log_reward += 'boss_hp-, '
-
-        '''
-        if player_hp == self.previous_player_hp and boss_hp == self.previous_boss_hp: 
-            reward -= 5
-        '''
 
         self.previous_player_hp = player_hp
         self.previous_boss_hp = boss_hp
@@ -338,6 +338,7 @@ if __name__ == '__main__':
         if not global_is_running: 
             time.sleep(1.0)
             state = env.get_state()
+            env.previous_action_id = -1
             continue
 
         t1 = time.time()
