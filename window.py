@@ -181,9 +181,9 @@ class BloodWindow(GrayWindow):
             # print(self.debug_name)
             # print('middle_row: ', middle_row)
             arr_index = np.where(middle_row > self.blood_gray_max)[0]
-            if len(arr_index) == 0: 
+            if arr_index.size == 0: 
                 arr_index = np.where(middle_row < self.blood_gray_min)[0]
-                if len(arr_index) == self.full_count: 
+                if arr_index.size == self.full_count: 
                     self.hp_count = 0
                     self.status = 0
                     return
@@ -361,7 +361,7 @@ def set_windows_offset(frame):
         BaseWindow.set_frame(frame)
         BaseWindow.update_all()
 
-        print(f"All windows offset by x: ({offset_x}, y: {offset_y})")
+        print(f"All windows offset by (x: {offset_x}, y: {offset_y})")
         return True
     else:
         print("Failed to find the game logo, offsets not set.")

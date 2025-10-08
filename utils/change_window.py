@@ -90,6 +90,7 @@ def correction_window():
 
     else:
         print(f"{WUKONG_TITLE} is visible and active.")
+        set_window_topleft()
 
     # wait for window movement.
     time.sleep(1)
