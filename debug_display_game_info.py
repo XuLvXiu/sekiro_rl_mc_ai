@@ -1,6 +1,6 @@
 import cv2
 import time
-from window import game_width, game_height, set_windows_offset, game_window, BaseWindow, self_blood_window
+from window import game_width, game_height, set_windows_offset, game_window, BaseWindow, player_hp_window, boss_hp_window, global_enemy_window
 import grabscreen
 import signal
 import sys
@@ -56,7 +56,8 @@ def display_gui_elements():
     # Iterate through all window instances and draw rectangles
     for win in BaseWindow.all_windows:
         # Get the class name of the window instance
-        class_name = win.__class__.__name__.replace("Window", "")
+        # class_name = win.__class__.__name__.replace("Window", "")
+        class_name = win.get_debug_name().replace('window', '')
 
         # Define top-left and bottom-right points
         top_left = (win.sx, win.sy)
@@ -97,7 +98,7 @@ def display_gui_elements():
     cv2.destroyAllWindows()
     '''
     # cv2.imwrite('debug_ui_element.png', cv2.cvtColor(game_window_frame, cv2.COLOR_BGR2RGB))
-    cv2.imwrite('images/debug_ui_elements.jpg', game_window_frame)
+    cv2.imwrite('assets/debug_ui_elements.jpg', game_window_frame)
     '''
     cv2.imshow('debug ui elements', game_window_frame)
     cv2.waitKey(0)
@@ -167,7 +168,9 @@ def main_loop():
     app = GameStatusApp(root)
 
     # 添加初始变量（示例）
-    app.add_variable("self_blood", var_type="float", column="left")
+    app.add_variable("player_hp", var_type="float", column="left")
+    app.add_variable("boss_hp", var_type="float", column="right")
+
     '''
     app.add_variable("self_magic", var_type="float", column="left")
     app.add_variable("self_energy", var_type="float", column="left")
@@ -208,7 +211,8 @@ def main_loop():
             # 更新 Tkinter 界面上的状态
             app.update_status(
                 **{
-                    "self_blood": self_blood_window.get_status(),
+                    "player_hp": player_hp_window.get_status(),
+                    "boss_hp": boss_hp_window.get_status(),
                 }
             )
 

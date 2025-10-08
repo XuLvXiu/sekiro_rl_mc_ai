@@ -171,10 +171,10 @@ class BloodWindow(GrayWindow):
     def process_color(self): 
         super().process_color()
         self.status = 0
-        self.color = cv2.cvtColor(self.color, cv2.COLOR_BGR2GRAY)
+        # self.color = cv2.cvtColor(self.color, cv2.COLOR_BGR2GRAY)
         # print('process_color:', self.debug_name, ', shape:', self.color.shape)
         # cv2.imwrite('self.color.%s.png' % (self.debug_name), self.color)
-        gray = self.color
+        gray = self.gray
         if gray is not None: 
             middle_row = gray[gray.shape[0] // 2, :]
             self.full_count = len(middle_row)
