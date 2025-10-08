@@ -41,6 +41,7 @@ class Env(object):
         self.IDLE_ACTION_ID     = 0
         self.ATTACK_ACTION_ID   = 1
         self.PARRY_ACTION_ID    = 2
+        self.SHIPO_ACTION_ID    = 3
 
         self.previous_action_id = -1
         self.previous_player_hp = 100
@@ -138,6 +139,21 @@ class Env(object):
 
         return False
 
+    def is_attack(self, action_id): 
+        '''
+        check if action_id is ATTACK_ACTION_ID
+        '''
+        if action_id == self.ATTACK_ACTION_ID: 
+            return True
+
+        return False
+
+    def is_shipo(self, action_id): 
+        if action_id == self.SHIPO_ACTION_ID: 
+            return True
+
+        return False
+
 
     def take_action(self, action_id): 
         '''
@@ -173,9 +189,11 @@ class Env(object):
 
         # wait for boss damage to take effect.
         # how about player damage taken?
-        if action_id == self.ATTACK_ACTION_ID: 
-            time.sleep(0.5)
+        if self.is_attack(action_id): 
+            time.sleep(0.8)
 
+        if self.is_shipo(action_id): 
+            time.sleep(0.2)
 
     def check_done(self, state): 
         '''
@@ -278,21 +296,37 @@ class Env(object):
         打法: 立足防御，找机会偷一刀，尽量少垫步，绝不贪刀，稳扎稳打。
         '''
 
-        reward = 0
+        reward = 10
         log_reward = '.'
 
         player_hp = new_state['player_hp']
         boss_hp = new_state['boss_hp']
 
-        if self.previous_player_hp - player_hp > 10: 
-            # reward -= 30
-            # the damage maybe caused by previous actions?
-            reward -= 1
-            log_reward += 'player_hp-, '
+        player_hp_down = self.previous_player_hp - player_hp 
+        boss_hp_down = self.previous_boss_hp - boss_hp
+        THRESHOLD = 3
 
-        if self.previous_boss_hp - boss_hp > 3: 
-            reward += 20
-            log_reward += 'boss_hp-, '
+        log_reward += 'action:%s,' % (action_id)
+
+        if player_hp_down > THRESHOLD: 
+            # the damage maybe caused by previous actions?
+            reward -= 30
+            if self.is_attack(action_id): 
+                reward -= 30
+            if self.is_shipo(action_id): 
+                reward -= 50
+
+            log_reward += 'player_hp-,'
+
+        if boss_hp_down > THRESHOLD: 
+            reward += 100
+            log_reward += 'boss_hp-,'
+            if not self.is_attack(action_id): 
+                log.error('error: boss_hp-, but player is NOT attack')
+        else: 
+            if self.is_attack(action_id): 
+                reward -= 10
+                log_reward += 'boss_hp=,'
 
         self.previous_player_hp = player_hp
         self.previous_boss_hp = boss_hp
@@ -308,7 +342,7 @@ if __name__ == '__main__':
         sys.exit(0)
 
     def on_press(key):
-        print('on_press', key)
+        print('on_press: %s' % (key))
         global global_is_running
         try:
             if key == Key.backspace: 
