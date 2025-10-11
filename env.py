@@ -199,27 +199,11 @@ class Env(object):
         '''
         check if the player dead or if the boss dead(laugh).
         '''
-        '''
-        x_min, x_max = 0, 300
-        y_min, y_max = 0, 300 
-        image = state['image'][y_min:y_max, x_min:x_max]
-        gray_image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
-        res = cv2.matchTemplate(gray_image, self.template_death, cv2.TM_CCOEFF_NORMED)
-        # min_val, max_val, min_loc, max_loc = cv2.minMaxLoc(result)
-        # top_left = max_loc 
 
-        # print('todo: check res: ', res)
-
-        if np.max(res) >= 0.8: 
+        if state['player_hp'] < 50: 
             return True
 
-        return False
-        '''
-
-        if state['player_hp'] < 10: 
-            return True
-
-        if state['boss_hp'] < 50: 
+        if state['boss_hp'] < 80: 
             return True
 
         return False
@@ -237,7 +221,7 @@ class Env(object):
 
     def stop(self): 
         '''
-        stop the env
+        terminate the env
         '''
         self.executor.interrupt_action()
 
@@ -256,10 +240,12 @@ class Env(object):
         player_hp = player_hp_window.get_status()
         boss_hp = boss_hp_window.get_status()
 
+        image_transformed = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+        image_transformed = cv2.resize(image_transformed, (40, 40), interpolation=cv2.INTER_LINEAR)
+
         state = {
             'image': image,
-            'image_player_hp': player_hp_window.gray.copy(),
-            'image_boss_hp': boss_hp_window.gray.copy(),
+            'image_transformed': image_transformed,
             'player_hp': player_hp,
             'boss_hp': boss_hp,
         }
@@ -310,7 +296,8 @@ class Env(object):
 
         if player_hp_down > THRESHOLD: 
             # the damage maybe caused by previous actions?
-            reward -= 30
+            # but the previous action and the current action could become a combo.
+            reward -= 20
             if self.is_attack(action_id): 
                 reward -= 30
             if self.is_shipo(action_id): 
@@ -325,7 +312,9 @@ class Env(object):
                 log.error('error: boss_hp-, but player is NOT attack')
         else: 
             if self.is_attack(action_id): 
-                reward -= 10
+                # even the boss-hp is not changed, player can interrupt boss-combo.
+                # reward -= 10
+                reward += 10
                 log_reward += 'boss_hp=,'
 
         self.previous_player_hp = player_hp
@@ -366,16 +355,19 @@ if __name__ == '__main__':
     keyboard_listener.start()
 
     env = Env()
+    env.reset()
     state = env.get_state()
     while True: 
         log.info('main loop running')
         if not global_is_running: 
             time.sleep(1.0)
+            env.reset()
             state = env.get_state()
-            env.previous_action_id = -1
             continue
 
         t1 = time.time()
+
+        # get action from state
         inputs = env.transform_state(state)
 
         with torch.no_grad(): 
@@ -385,9 +377,13 @@ if __name__ == '__main__':
             _, predicted = torch.max(outputs, 1)
             action_id = predicted.item()
 
-        state, reward, is_done = env.step(action_id)
+        # do next step, get next state
+        next_state, reward, is_done = env.step(action_id)
         t2 = time.time()
         log.info('main loop end one epoch, time: %.2f s' % (t2-t1))
+
+        # prepare for next loop
+        state = next_state
 
         if is_done: 
             log.info('done.')
