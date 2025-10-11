@@ -17,6 +17,8 @@ from collections import defaultdict
 import dill 
 import json
 import time
+import argparse
+
 
 class Storage: 
     '''
@@ -331,6 +333,12 @@ class Trainer:
 
 
 
+# main
+parser = argparse.ArgumentParser()
+parser.add_argument('--new', action='store_true', help='new training', default=False)
+args = parser.parse_args()
+is_resume = not args.new
+
 g_episode_is_running = False
 def signal_handler(sig, frame):
     log.debug("Gracefully exiting...")
@@ -361,5 +369,5 @@ signal.signal(signal.SIGINT, signal_handler)
 keyboard_listener = Listener(on_press=on_press)
 keyboard_listener.start()
 
-t = Trainer()
+t = Trainer(is_resume)
 t.train()
