@@ -14,7 +14,7 @@ from pynput.keyboard import Listener, Key
 import numpy as np
 import os
 from collections import defaultdict
-import dill 
+import pickle
 import json
 import time
 import argparse
@@ -31,11 +31,13 @@ class Storage:
         key space: * 255 = 408,000
     '''
 
-    def __init__(self, length): 
+    def __init__(self, d2_length): 
         '''
         init
         '''
-        self.obj = defaultdict(lambda: np.zeros(length))
+        # self.obj = defaultdict(lambda: np.zeros(d2_length))
+        self.obj = {}
+        self.d2_length = d2_length
 
 
     def convert_state_to_key(self, state): 
@@ -61,6 +63,9 @@ class Storage:
         if the state not exist in the object, will return default value
         '''
         key = self.convert_state_to_key(state)
+        if key not in self.obj: 
+            self.obj[key] = np.zeros(self.d2_length)
+
         return self.obj[key]
 
 
@@ -69,6 +74,8 @@ class Storage:
         set new value to obj
         '''
         key = self.convert_state_to_key(state)
+        if key not in self.obj: 
+            self.obj[key] = np.zeros(self.d2_length)
         self.obj[key][action_id] = value
 
 
@@ -117,7 +124,7 @@ class Trainer:
         self.GAMMA = 0.9
 
         # episode parameters
-        self.MAX_EPISODES = 2
+        self.MAX_EPISODES = 200
         self.next_episode = 0
         self.CHECKPOINT_FILE = 'checkpoint.pkl'
         self.JSON_FILE = 'checkpoint.json'
@@ -149,7 +156,11 @@ class Trainer:
             }
             self.save_checkpoint(obj_information)
 
+            self.env.go_to_next_episode()
+
+        log.info('mission accomplished :)')
     
+
     def generate_episode_from_Q(self, epsilon): 
         '''
         generate an episode using epsilon-greedy policy
@@ -162,7 +173,7 @@ class Trainer:
         env.reset()
         state = env.get_state()
 
-        g_episode_is_running = False
+        # g_episode_is_running = False
         obj_found_count = {
             'y': 0,
             'n': 0,
@@ -173,7 +184,7 @@ class Trainer:
         while True: 
             # log.info('generate_episode main loop running')
             if not g_episode_is_running: 
-                print('if the game is ready, press ] to begin the episode')
+                print('if you lock the boss already, press ] to begin the episode')
                 time.sleep(1.0)
                 env.reset()
                 state = env.get_state()
@@ -217,6 +228,7 @@ class Trainer:
             state = next_state
 
             if is_done: 
+                env.stop()
                 log.info('done.')
                 break
 
@@ -240,7 +252,7 @@ class Trainer:
         log.info('a_star: %s' % (a_star))
         policy_s[a_star] = 1 - epsilon + epsilon / self.action_space
 
-        return policy_s, a_star
+        return policy_s
 
 
     def update_Q(self, episode): 
@@ -268,6 +280,7 @@ class Trainer:
             # we do not need to collect reward from so much following states.
             # so we can use GAMMA to decay the rewards.
             arr_reward_following = arr_reward[i:] * arr_discount[:-(1+i)]
+            log.info('arr_reward_following: %s' % (arr_reward_following))
             G = sum(arr_reward_following)
 
             # Q(s, a) = average(Return(s, a))
@@ -289,13 +302,16 @@ class Trainer:
         '''
         save checkpoint for future use.
         '''
-        log.info('save_checkpoint')
+        log.info('save_checkpoint...')
         log.info('Q.state: %s' % (self.Q.summary()))
         log.info('N.state: %s' % (self.N.summary()))
+        log.info('do NOT terminiate the power, still saving...')
         
         # pickle Q and N
         with open(self.CHECKPOINT_FILE, 'wb') as f:
-            dill.dump((self.Q, self.N), f)
+            pickle.dump((self.Q, self.N), f, protocol=pickle.HIGHEST_PROTOCOL)
+
+        log.info('still saving...')
 
         # write json information
         with open(self.JSON_FILE, 'w', encoding='utf-8') as f: 
@@ -312,7 +328,7 @@ class Trainer:
         obj_information = {'episode': 0}
         try: 
             with open(self.CHECKPOINT_FILE, 'rb') as f: 
-                (self.Q, self.N) = dill.load(f)
+                (self.Q, self.N) = pickle.load(f)
                 log.info('Q.state: %s' % (self.Q.summary()))
                 log.info('N.state: %s' % (self.N.summary()))
 
@@ -357,8 +373,9 @@ def on_press(key):
         if hasattr(key, 'char') and key.char == ']': 
             # switch the switch
             if g_episode_is_running: 
-                g_episode_is_running = False
-                env.stop()
+                # g_episode_is_running = False
+                # t.stop()
+                print('I cannot stop myself lalala')
             else: 
                 g_episode_is_running = True
 

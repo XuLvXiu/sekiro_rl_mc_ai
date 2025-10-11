@@ -195,6 +195,7 @@ class Env(object):
         if self.is_shipo(action_id): 
             time.sleep(0.2)
 
+
     def check_done(self, state): 
         '''
         check if the player dead or if the boss dead(laugh).
@@ -241,7 +242,7 @@ class Env(object):
         boss_hp = boss_hp_window.get_status()
 
         image_transformed = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
-        image_transformed = cv2.resize(image_transformed, (40, 40), interpolation=cv2.INTER_LINEAR)
+        image_transformed = cv2.resize(image_transformed, (10, 10), interpolation=cv2.INTER_LINEAR)
 
         state = {
             'image': image,
@@ -321,6 +322,20 @@ class Env(object):
         self.previous_boss_hp = boss_hp
 
         return (reward, log_reward)
+
+
+    def go_to_next_episode(self): 
+        '''
+        close current episode, go to the next one.
+        '''
+        # wait for player death
+        log.info('go_to_next_episode')
+        time.sleep(60)
+        log.info('confirm player death')
+        log.debug('take_action: NEXT_EPISODE')
+        self.executor.take_action('NEXT_EPISODE', action_finished_callback=self.on_action_finished)
+        while self.executor.is_running(): 
+            time.sleep(0.05)
 
 
 if __name__ == '__main__': 

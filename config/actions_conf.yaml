@@ -41,6 +41,60 @@ actions:
     - ['delay', 0.1]
     - ['release', 'f']
 
+
+  NEXT_EPISODE: 
+    - ['delay', 15]
+
+    - ['press', 'w']
+    - ['delay', 0.7]
+    - ['release', 'w']
+    - ['delay', 2]
+
+    - ['press', 'e']
+    - ['delay', 0.1]
+    - ['release', 'e']
+    - ['delay', 2]
+
+    - ['press', 'up']
+    - ['delay', 0.1]
+    - ['release', 'up']
+    - ['delay', 1]
+
+    - ['press', 'up']
+    - ['delay', 0.1]
+    - ['release', 'up']
+    - ['delay', 1]
+
+    - ['press', 'e']
+    - ['delay', 0.1]
+    - ['release', 'e']
+    - ['delay', 2]
+
+    - ['press', 'down']
+    - ['delay', 0.1]
+    - ['release', 'down']
+    - ['delay', 1]
+
+    - ['press', 'down']
+    - ['delay', 0.1]
+    - ['release', 'down']
+    - ['delay', 1]
+
+    - ['press', 'e']
+    - ['delay', 0.1]
+    - ['release', 'e']
+    - ['delay', 1]
+
+    - ['press', 'e']
+    - ['delay', 0.1]
+    - ['release', 'e']
+
+    - ['delay', 13]
+    - ['press', 'q']
+    - ['delay', 0.1]
+    - ['release', 'q']
+
+
   GUI_FUO: &GUI_FUO
     - ['press', 'p']
     - ['delay', 0.1]
