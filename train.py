@@ -23,12 +23,6 @@ import argparse
 class Storage: 
     '''
     storage schema for Q and N
-    original: 
-        key length: (301, 301, 4) = 362404 
-        key space: * 255 = 92,413,020
-    after gray and resize: 
-        key length: (40, 40, 1) = 1600
-        key space: * 255 = 408,000
     '''
 
     def __init__(self, d2_length): 
@@ -124,7 +118,7 @@ class Trainer:
         self.GAMMA = 0.9
 
         # episode parameters
-        self.MAX_EPISODES = 200
+        self.MAX_EPISODES = 2000
         self.next_episode = 0
         self.CHECKPOINT_FILE = 'checkpoint.pkl'
         self.JSON_FILE = 'checkpoint.json'
