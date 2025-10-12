@@ -241,12 +241,12 @@ class Env(object):
         player_hp = player_hp_window.get_status()
         boss_hp = boss_hp_window.get_status()
 
-        image_transformed = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
-        image_transformed = cv2.resize(image_transformed, (10, 10), interpolation=cv2.INTER_LINEAR)
+        # image_transformed = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+        # image_transformed = cv2.resize(image_transformed, (10, 10), interpolation=cv2.INTER_LINEAR)
 
         state = {
             'image': image,
-            'image_transformed': image_transformed,
+            # 'image_transformed': image_transformed,
             'player_hp': player_hp,
             'boss_hp': boss_hp,
         }
