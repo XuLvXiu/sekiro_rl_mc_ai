@@ -66,3 +66,4 @@ python main.py
 - https://github.com/RongKaiWeskerMA/sekiro_play
 - https://www.lapis.cafe/posts/ai-and-deep-learning/%E4%BD%BF%E7%94%A8resnet%E8%AE%AD%E7%BB%83%E4%B8%80%E4%B8%AA%E5%9B%BE%E7%89%87%E5%88%86%E7%B1%BB%E6%A8%A1%E5%9E%8B
 - https://blog.csdn.net/qq_36795658/article/details/100533639
+- https://blog.csdn.net/Guo_Python/article/details/134922730

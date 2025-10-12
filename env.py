@@ -21,6 +21,7 @@ import signal
 from pynput.keyboard import Listener, Key
 import numpy as np
 import os
+from cluster_model import ClusterModel
 
 class Env(object): 
 
@@ -48,6 +49,7 @@ class Env(object):
         self.previous_boss_hp   = 100
 
         self.model = None
+        self.cluster_model = None
 
         # Initialize camera
         grabscreen.init_camera(target_fps=12)
@@ -83,6 +85,9 @@ class Env(object):
         if torch.cuda.is_available(): 
             self.model = self.model.cuda()
 
+        self.cluster_model = ClusterModel()
+        self.cluster_model.load()
+
         while True: 
             frame = grabscreen.grab_screen()
             if frame is not None and window.set_windows_offset(frame):
@@ -91,7 +96,7 @@ class Env(object):
                 BaseWindow.set_frame(frame)
                 BaseWindow.update_all()
 
-                log.debug('waiting for model loading...')
+                log.debug('waiting for classifier model loading...')
                 image = global_enemy_window.color.copy()
                 state = {
                     'image': image,
@@ -103,6 +108,9 @@ class Env(object):
                         inputs = inputs.cuda()
 
                     outputs = self.model(inputs)
+
+                log.debug('waiting for cluster model loading...')
+                self.cluster_model.predict_env_inputs(inputs)
 
                 return True
             time.sleep(1)
@@ -241,17 +249,16 @@ class Env(object):
         player_hp = player_hp_window.get_status()
         boss_hp = boss_hp_window.get_status()
 
-        # image_transformed = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
-        # image_transformed = cv2.resize(image_transformed, (10, 10), interpolation=cv2.INTER_LINEAR)
-
         state = {
             'image': image,
-            # 'image_transformed': image_transformed,
             'player_hp': player_hp,
             'boss_hp': boss_hp,
         }
 
-        log.debug('get new state, hp: %s %s' % (player_hp, boss_hp))
+        inputs = self.transform_state(state)
+        state['cluster_class'] = self.cluster_model.predict_env_inputs(inputs)
+
+        log.debug('get new state, hp: %s %s, cluster_class: %s' % (state['player_hp'], state['boss_hp'], state['cluster_class']))
 
         return state
 

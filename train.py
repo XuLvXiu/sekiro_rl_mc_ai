@@ -35,7 +35,7 @@ class Storage:
 
 
     def convert_state_to_key(self, state): 
-        key = tuple(state['image_transformed'].flatten())
+        key = state['cluster_class']
         # print('len key: ', len(key))
         return key
 
