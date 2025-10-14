@@ -44,6 +44,10 @@ class Env(object):
         self.PARRY_ACTION_ID    = 2
         self.SHIPO_ACTION_ID    = 3
 
+        self.MODE_TRAIN = 'MODE_TRAIN'
+        self.MODE_EVAL  = 'MODE_EVAL'
+        self.mode = None
+
         self.previous_action_id = -1
         self.previous_player_hp = 100
         self.previous_boss_hp   = 100
@@ -209,13 +213,41 @@ class Env(object):
         check if the player dead or if the boss dead(laugh).
         '''
 
-        if state['player_hp'] < 50: 
-            return True
+        if self.mode is None: 
+            log.error('please set env.mode to train() to eval()')
+            sys.exit(-1)
 
-        if state['boss_hp'] < 80: 
-            return True
+        if self.mode == self.MODE_TRAIN: 
+            if state['player_hp'] < 50: 
+                return True
+
+            if state['boss_hp'] < 80: 
+                return True
+
+        if self.mode == self.MODE_EVAL: 
+            if state['player_hp'] < 1: 
+                return True
+
+            if state['boss_hp'] < 1: 
+                return True
 
         return False
+
+
+    def eval(self): 
+        '''
+        set mode
+        '''
+        self.mode = self.MODE_EVAL
+        log.info('set new mode: %s' % (self.mode))
+
+
+    def train(self): 
+        '''
+        set mode
+        '''
+        self.mode = self.MODE_TRAIN
+        log.info('set new mode: %s' % (self.mode))
 
 
     def reset(self): 

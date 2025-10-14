@@ -13,7 +13,6 @@ import signal
 from pynput.keyboard import Listener, Key
 import numpy as np
 import os
-from collections import defaultdict
 import pickle
 import json
 import time
@@ -34,6 +33,7 @@ class Trainer:
         log.info('device: %s' % (self.device))
 
         self.env = Env()
+        self.env.train()
 
         # number of actions.
         self.action_space = self.env.action_space

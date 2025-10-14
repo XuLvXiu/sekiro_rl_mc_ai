@@ -1,5 +1,6 @@
 #encoding=utf8
 
+from collections import defaultdict
 class Storage: 
     '''
     storage schema for Q and N
