@@ -18,82 +18,8 @@ import pickle
 import json
 import time
 import argparse
+from storage import Storage
 
-
-class Storage: 
-    '''
-    storage schema for Q and N
-    '''
-
-    def __init__(self, d2_length): 
-        '''
-        init
-        '''
-        # self.obj = defaultdict(lambda: np.zeros(d2_length))
-        self.obj = {}
-        self.d2_length = d2_length
-
-
-    def convert_state_to_key(self, state): 
-        key = state['cluster_class']
-        # print('len key: ', len(key))
-        return key
-
-
-    def has(self, state): 
-        '''
-        check if state in the object
-        '''
-        key = self.convert_state_to_key(state)
-        if key in self.obj: 
-            return True
-
-        return False
-
-
-    def get(self, state): 
-        '''
-        get the value from obj by state
-        if the state not exist in the object, will return default value
-        '''
-        key = self.convert_state_to_key(state)
-        if key not in self.obj: 
-            self.obj[key] = np.zeros(self.d2_length)
-
-        return self.obj[key]
-
-
-    def set(self, state, action_id, value): 
-        '''
-        set new value to obj
-        '''
-        key = self.convert_state_to_key(state)
-        if key not in self.obj: 
-            self.obj[key] = np.zeros(self.d2_length)
-        self.obj[key][action_id] = value
-
-
-    def length(self): 
-        '''
-        return real length of the obj
-        '''
-
-        return len(self.obj)
-
-
-    def summary(self): 
-        '''
-        get the summary of the obj
-        '''
-        length = len(self.obj)
-        obj_count = defaultdict(int)
-        for k, v in self.obj.items(): 
-            total_count = str(int(sum(v)))
-            obj_count[total_count] += 1
-
-        cnt = sorted(obj_count.items(), key=lambda kv:(kv[1], kv[0]), reverse=True)
-        return 'length: %s, cnt: %s' % (length, cnt[0:100])
-    
 
 class Trainer: 
     '''
@@ -159,7 +85,7 @@ class Trainer:
         '''
         generate an episode using epsilon-greedy policy
         '''
-        global g_episode_is_running
+        # global g_episode_is_running
 
         episode = []
         env = self.env
@@ -187,7 +113,7 @@ class Trainer:
             t1 = time.time()
             log.info('generate_episode step_i: %s,' % (step_i))
 
-            # get action from state
+            # get action by state
             if self.Q.has(state): 
                 log.info('state found, using epsilon-greedy')
                 obj_found_count['y'] += 1
