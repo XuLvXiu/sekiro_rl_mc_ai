@@ -346,7 +346,7 @@ class Env(object):
             log_reward += 'player_hp-,'
 
         if boss_hp_down > THRESHOLD: 
-            reward += 100
+            reward += 30
             log_reward += 'boss_hp-,'
             if not self.is_attack(action_id): 
                 log.error('error: boss_hp-, but player is NOT attack')
@@ -354,7 +354,7 @@ class Env(object):
             if self.is_attack(action_id): 
                 # even the boss-hp is not changed, player can interrupt boss-combo.
                 # reward -= 10
-                reward += 10
+                reward += 0
                 log_reward += 'boss_hp=,'
 
         self.previous_player_hp = player_hp

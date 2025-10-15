@@ -44,7 +44,7 @@ class Trainer:
         self.GAMMA = 0.9
 
         # episode parameters
-        self.MAX_EPISODES = 2000
+        self.MAX_EPISODES = 1000
         self.next_episode = 0
         self.CHECKPOINT_FILE = 'checkpoint.pkl'
         self.JSON_FILE = 'checkpoint.json'
@@ -62,7 +62,7 @@ class Trainer:
         begin_i = self.next_episode
         for i in range(begin_i, self.MAX_EPISODES): 
             # decay
-            epsilon = 1.0 / ((i+1) / 8000 + 1)
+            epsilon = 1.0 / ((i+1) / self.MAX_EPISODES + 1)
             log.info('episode: %s, epsilon: %s' % (i, epsilon))
 
             episode = self.generate_episode_from_Q(epsilon)
