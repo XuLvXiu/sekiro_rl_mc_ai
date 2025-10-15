@@ -22,7 +22,7 @@ import json
 g_episode_is_running = False
 def signal_handler(sig, frame):
     log.debug("Gracefully exiting...")
-    t.stop()
+    env.stop()
     sys.exit(0)
 
 def on_press(key):
@@ -31,14 +31,14 @@ def on_press(key):
     try:
         if key == Key.backspace: 
             log.info('The user presses backspace in the game, will terminate.')
-            t.stop()
+            env.stop()
             os._exit(0)
 
         if hasattr(key, 'char') and key.char == ']': 
             # switch the switch
             if g_episode_is_running: 
                 g_episode_is_running = False
-                t.stop()
+                env.stop()
             else: 
                 g_episode_is_running = True
 
