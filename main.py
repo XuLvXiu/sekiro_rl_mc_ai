@@ -70,7 +70,20 @@ with open(CHECKPOINT_FILE, 'rb') as f:
 with open(JSON_FILE, 'r', encoding='utf-8') as f: 
     obj_information = json.load(f)
 
-print(obj_information)
+log.info(obj_information)
+
+'''
+# generate the policy
+policy = {}
+for (k, v) in Q.items(): 
+    state = k
+    Q_s = v
+    action_id = np.argmax(Q_s)
+    policy[state] = action_id
+log.info('policy: %s' % (policy))
+'''
+
+
 
 env.reset()
 state = env.get_state()

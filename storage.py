@@ -1,6 +1,9 @@
 #encoding=utf8
 
 from collections import defaultdict
+import json
+import numpy as np
+
 class Storage: 
     '''
     storage schema for Q and N
@@ -67,12 +70,12 @@ class Storage:
         get the summary of the obj
         '''
         length = len(self.obj)
-        obj_count = defaultdict(int)
-        for k, v in self.obj.items(): 
-            total_count = str(int(sum(v)))
-            obj_count[total_count] += 1
+        str_summary = 'length: %s' % (length)
 
-        cnt = sorted(obj_count.items(), key=lambda kv:(kv[1], kv[0]), reverse=True)
-        return 'length: %s, cnt: %s' % (length, cnt[0:100])
+        str_summary += '\n'
+        for (k, v) in sorted(self.obj.items()): 
+            str_summary += 'state: %2s, Q_s(or N_s): %s, argmax: %s\n' % (k, v, np.argmax(v))
+
+        return str_summary 
     
 

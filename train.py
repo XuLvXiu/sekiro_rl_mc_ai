@@ -223,8 +223,8 @@ class Trainer:
         save checkpoint for future use.
         '''
         log.info('save_checkpoint...')
-        log.info('Q.state: %s' % (self.Q.summary()))
-        log.info('N.state: %s' % (self.N.summary()))
+        log.info('Q: %s' % (self.Q.summary()))
+        log.info('N: %s' % (self.N.summary()))
         log.info('do NOT terminiate the power, still saving...')
         
         # pickle Q and N
@@ -234,6 +234,7 @@ class Trainer:
         log.info('still saving...')
 
         # write json information
+        log.debug(obj_information)
         with open(self.JSON_FILE, 'w', encoding='utf-8') as f: 
             json.dump(obj_information, f, indent=4, ensure_ascii=False) 
 
@@ -249,15 +250,15 @@ class Trainer:
         try: 
             with open(self.CHECKPOINT_FILE, 'rb') as f: 
                 (self.Q, self.N) = pickle.load(f)
-                log.info('Q.state: %s' % (self.Q.summary()))
-                log.info('N.state: %s' % (self.N.summary()))
 
             with open(self.JSON_FILE, 'r', encoding='utf-8') as f: 
                 obj_information = json.load(f)
         except Exception as e: 
-            print(e)
+            log.error('ERROR load checkpoint: %s', (e))
 
-        print(obj_information)
+        log.info('Q: %s' % (self.Q.summary()))
+        log.info('N: %s' % (self.N.summary()))
+        log.debug(obj_information)
         return obj_information
 
 
