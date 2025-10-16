@@ -41,7 +41,7 @@ class ClusterModel:
         self.features = []
 
         self.CLUSTER_MODEL_FILE = 'model.cluster.kmeans'
-        self.n_clusters = 16
+        self.n_clusters = 32
         self.max_iter = 10000
         self.tol = 1e-4
         self.cluster_model = KMeans(n_clusters=self.n_clusters, max_iter=self.max_iter, tol=self.tol)
@@ -122,8 +122,10 @@ class ClusterModel:
         log.info('predict')
         pil_image = Image.open(image_path).convert('RGB')
         cv2_image = cv2.cvtColor(np.asarray(pil_image), cv2.COLOR_RGB2BGR)
+        '''
         if self.has_danger(cv2_image): 
             return self.n_clusters
+        '''
 
         pil_image = self.eval_transform(pil_image)
         inputs = pil_image.unsqueeze(0)
@@ -152,10 +154,6 @@ class ClusterModel:
         '''
         project env input to some class
         '''
-
-        if self.has_danger(image): 
-            return self.n_clusters
-
         with torch.no_grad():
             if torch.cuda.is_available(): 
                 inputs = inputs.cuda()
@@ -172,6 +170,8 @@ class ClusterModel:
         wei
         @param: image, cv2 BGR format
         '''
+        return False
+
         # (301, 301, 3)
 
         hsv_image = cv2.cvtColor(image, cv2.COLOR_BGR2HSV)
@@ -205,7 +205,7 @@ class ClusterModel:
         cv2.destroyAllWindows()
         '''
 
-        if cnt > 333: 
+        if cnt > 222: 
             return True
 
         return False
