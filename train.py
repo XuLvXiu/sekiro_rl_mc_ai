@@ -225,7 +225,7 @@ class Trainer:
         log.info('save_checkpoint...')
         log.info('Q: %s' % (self.Q.summary()))
         log.info('N: %s' % (self.N.summary()))
-        log.info('do NOT terminiate the power, still saving...')
+        log.info('do NOT terminate the power, still saving...')
         
         # pickle Q and N
         with open(self.CHECKPOINT_FILE, 'wb') as f:

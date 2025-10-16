@@ -12,6 +12,7 @@ from log import log
 import os
 import pickle
 import shutil
+import cv2
 
 class ClusterModel: 
     '''
@@ -120,6 +121,10 @@ class ClusterModel:
         '''
         log.info('predict')
         pil_image = Image.open(image_path).convert('RGB')
+        cv2_image = cv2.cvtColor(np.asarray(pil_image), cv2.COLOR_RGB2BGR)
+        if self.has_danger(cv2_image): 
+            return self.n_clusters
+
         pil_image = self.eval_transform(pil_image)
         inputs = pil_image.unsqueeze(0)
         with torch.no_grad():
@@ -143,10 +148,14 @@ class ClusterModel:
         log.info('loaded.')
 
 
-    def predict_env_inputs(self, inputs): 
+    def predict_env_inputs(self, inputs, image): 
         '''
         project env input to some class
         '''
+
+        if self.has_danger(image): 
+            return self.n_clusters
+
         with torch.no_grad():
             if torch.cuda.is_available(): 
                 inputs = inputs.cuda()
@@ -158,10 +167,111 @@ class ClusterModel:
         return result[0]
 
 
+    def has_danger(self, image): 
+        '''
+        wei
+        @param: image, cv2 BGR format
+        '''
+        # (301, 301, 3)
+
+        hsv_image = cv2.cvtColor(image, cv2.COLOR_BGR2HSV)
+
+        lower_1 = np.array([0, 120, 70])
+        upper_1 = np.array([10, 255, 255])
+        mask_1 = cv2.inRange(hsv_image, lower_1, upper_1)
+        # res_1 = cv2.bitwise_and(image, image, mask=mask_1)
+     
+        lower_2 = np.array([170, 120, 70])
+        upper_2 = np.array([180, 255, 255])
+        mask_2 = cv2.inRange(hsv_image, lower_2, upper_2)
+        # res_2 = cv2.bitwise_and(image, image, mask=mask_2)
+     
+        mask_3 = mask_1 + mask_2
+        red_mask = mask_3
+
+        
+        kernel = np.ones((5, 5), np.uint8)
+        red_mask = cv2.morphologyEx(red_mask, cv2.MORPH_CLOSE, kernel)
+        red_mask = cv2.morphologyEx(red_mask, cv2.MORPH_OPEN, kernel)
+        red_region = cv2.bitwise_and(image, image, mask=red_mask)
+
+        cnt = np.sum(red_mask) / 255
+        print('cnt: ', cnt)
+
+        '''
+        cv2.imshow('image', image)
+        # cv2.imshow('red_region', red_region)
+        cv2.waitKey(0)
+        cv2.destroyAllWindows()
+        '''
+
+        if cnt > 333: 
+            return True
+
+        return False
+
+
 if __name__ == '__main__': 
     m = ClusterModel()
     # m.train()
     m.load()
+
+    '''
+    for image_path in m.arr_image_path: 
+        result = m.predict_file(image_path)
+        print('predict result: ', result)
+    '''
+
     image_path = './images/20251012_172225_0.png'
     result = m.predict_file(image_path)
     print('predict result: ', result)
+
+    image_path = './images/20251012_172838_36.png'
+    result = m.predict_file(image_path)
+    print('predict result: ', result)
+
+    image_path = './images/20251012_173251_121.png'
+    result = m.predict_file(image_path)
+    print('predict result: ', result)
+
+    image_path = './images/20251012_173646_141.png'
+    result = m.predict_file(image_path)
+    print('predict result: ', result)
+
+    image_path = './images/20251012_173858_3.png'
+    result = m.predict_file(image_path)
+    print('predict result: ', result)
+
+    image_path = './images/20251012_173858_12.png'
+    result = m.predict_file(image_path)
+    print('predict result: ', result)
+
+    image_path = './images/20251012_172838_37.png'
+    result = m.predict_file(image_path)
+    print('predict result: ', result)
+
+    image_path = './images/20251012_172838_38.png'
+    result = m.predict_file(image_path)
+    print('predict result: ', result)
+
+    image_path = './images/20251012_172838_39.png'
+    result = m.predict_file(image_path)
+    print('predict result: ', result)
+
+    image_path = './images/20251012_173050_64.png'
+    result = m.predict_file(image_path)
+    print('predict result: ', result)
+
+    image_path = './images/20251012_173251_133.png'
+    result = m.predict_file(image_path)
+    print('predict result: ', result)
+
+    image_path = './images/20251012_173646_139.png'
+    result = m.predict_file(image_path)
+    print('predict result: ', result)
+
+    image_path = './images/20251012_173646_140.png'
+    result = m.predict_file(image_path)
+    print('predict result: ', result)
+
+

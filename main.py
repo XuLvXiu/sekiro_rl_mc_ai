@@ -64,8 +64,8 @@ JSON_FILE = 'checkpoint.json'
 
 with open(CHECKPOINT_FILE, 'rb') as f: 
     (Q, N) = pickle.load(f)
-    log.info('Q.state: %s' % (Q.summary()))
-    log.info('N.state: %s' % (N.summary()))
+    log.info('Q: %s' % (Q.summary()))
+    log.info('N: %s' % (N.summary()))
 
 with open(JSON_FILE, 'r', encoding='utf-8') as f: 
     obj_information = json.load(f)

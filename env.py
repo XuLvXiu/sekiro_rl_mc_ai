@@ -114,7 +114,7 @@ class Env(object):
                     outputs = self.model(inputs)
 
                 log.debug('waiting for cluster model loading...')
-                self.cluster_model.predict_env_inputs(inputs)
+                self.cluster_model.predict_env_inputs(inputs, image)
 
                 return True
             time.sleep(1)
@@ -288,7 +288,7 @@ class Env(object):
         }
 
         inputs = self.transform_state(state)
-        state['cluster_class'] = self.cluster_model.predict_env_inputs(inputs)
+        state['cluster_class'] = self.cluster_model.predict_env_inputs(inputs, image)
 
         log.debug('get new state, hp: %s %s, cluster_class: %s' % (state['player_hp'], state['boss_hp'], state['cluster_class']))
 
