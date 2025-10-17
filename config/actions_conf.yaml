@@ -15,7 +15,7 @@ actions:
     - ['press_mouse', 'left']
     - ['delay', 0.1 ]
     - ['release_mouse', 'left']
-    - ['delay', 0.1 ]
+    - ['delay', 0.4 ]
     - ['press_mouse', 'left']
     - ['delay', 0.1 ]
     - ['release_mouse', 'left']
@@ -30,6 +30,7 @@ actions:
   RELEASE_PARRY: 
     - ['release_mouse', 'right']
     - ['release', 'w']
+    - ['delay', 0.1 ]
 
   SHIPO: &SHIPO
     - ['press', 'space']

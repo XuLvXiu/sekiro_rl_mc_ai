@@ -44,7 +44,7 @@ class Trainer:
         self.GAMMA = 0.85
 
         # episode parameters
-        self.MAX_EPISODES = 200
+        self.MAX_EPISODES = 1000
         self.next_episode = 0
         self.CHECKPOINT_FILE = 'checkpoint.pkl'
         self.JSON_FILE = 'checkpoint.json'

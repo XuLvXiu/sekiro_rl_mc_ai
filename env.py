@@ -36,7 +36,7 @@ class Env(object):
         # self.template_death = cv2.imread('./assets/death_crop.png', cv2.IMREAD_GRAYSCALE)
 
         # currently do not support JUMP
-        self.arr_action_name = ['IDLE', 'ATTACK', 'PARRY', 'SHIPO', 'DIANBU_ATTACK', 'STAND_UP', 'JUMP']
+        self.arr_action_name = ['IDLE', 'ATTACK', 'PARRY', 'SHIPO', 'DIANBU_ATTACK', 'STAND_UP', 'DOUBLE_ATTACK', 'JUMP']
         self.action_space = len(self.arr_action_name) - 1
 
         self.IDLE_ACTION_ID             = 0
