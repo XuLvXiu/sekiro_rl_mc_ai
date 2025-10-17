@@ -36,13 +36,14 @@ class Env(object):
         # self.template_death = cv2.imread('./assets/death_crop.png', cv2.IMREAD_GRAYSCALE)
 
         # currently do not support JUMP
-        self.arr_action_name = ['IDLE', 'ATTACK', 'PARRY', 'SHIPO', 'JUMP']
+        self.arr_action_name = ['IDLE', 'ATTACK', 'PARRY', 'SHIPO', 'DIANBU_ATTACK', 'STAND_UP', 'JUMP']
         self.action_space = len(self.arr_action_name) - 1
 
-        self.IDLE_ACTION_ID     = 0
-        self.ATTACK_ACTION_ID   = 1
-        self.PARRY_ACTION_ID    = 2
-        self.SHIPO_ACTION_ID    = 3
+        self.IDLE_ACTION_ID             = 0
+        self.ATTACK_ACTION_ID           = 1
+        self.PARRY_ACTION_ID            = 2
+        self.SHIPO_ACTION_ID            = 3
+        self.DIANBU_ATTACK_ACTION_ID    = 4
 
         self.MODE_TRAIN = 'MODE_TRAIN'
         self.MODE_EVAL  = 'MODE_EVAL'
@@ -75,8 +76,9 @@ class Env(object):
         set window offset
         wait for model to load
         '''
+        # self.model only support [IDLE, ATTACK, PARRY, SHIPO]
         self.model = resnet18(weights=ResNet18_Weights.DEFAULT)
-        num_classes = self.action_space
+        num_classes = 4
         print('num_classes:', num_classes)
 
         num_ftrs = self.model.fc.in_features
@@ -153,9 +155,12 @@ class Env(object):
 
     def is_attack(self, action_id): 
         '''
-        check if action_id is ATTACK_ACTION_ID
+        check if action is attack
         '''
         if action_id == self.ATTACK_ACTION_ID: 
+            return True
+
+        if action_id == self.DIANBU_ATTACK_ACTION_ID: 
             return True
 
         return False
@@ -334,6 +339,9 @@ class Env(object):
 
         log_reward += 'action:%s,' % (action_id)
 
+        if self.is_shipo(action_id): 
+            reward -= 10
+
         if player_hp_down > THRESHOLD: 
             # the damage maybe caused by previous actions?
             # but the previous action and the current action could become a combo.
@@ -409,6 +417,8 @@ if __name__ == '__main__':
     keyboard_listener.start()
 
     env = Env()
+    # env.train()
+    env.eval()
     env.reset()
     state = env.get_state()
     while True: 

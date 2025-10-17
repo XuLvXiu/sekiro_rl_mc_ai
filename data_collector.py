@@ -1,5 +1,9 @@
 #encoding=utf8
 
+'''
+collect image data automatically, no actions.
+used for cluster model
+'''
 print('importing...')
 
 
@@ -20,6 +24,7 @@ import time
 import os
 import shutil
 import argparse
+from storage import Storage
 
 
 class DataCollector: 
@@ -43,6 +48,28 @@ class DataCollector:
             os.mkdir(image_dir)
 
         self.env = Env()
+        self.env.eval()
+
+        # if has Q, load Q
+        action_space = self.env.action_space
+        self.Q = Storage(action_space)
+        self.N = Storage(action_space)
+        CHECKPOINT_FILE = 'checkpoint.pkl'
+        JSON_FILE = 'checkpoint.json'
+
+        if os.path.exists(CHECKPOINT_FILE) and os.path.exists(JSON_FILE): 
+            log.info('loading Q')
+            with open(CHECKPOINT_FILE, 'rb') as f: 
+                (self.Q, self.N) = pickle.load(f)
+                log.info('Q: %s' % (self.Q.summary()))
+                log.info('N: %s' % (self.N.summary()))
+
+            with open(JSON_FILE, 'r', encoding='utf-8') as f: 
+                obj_information = json.load(f)
+
+            log.info(obj_information)
+        else: 
+            log.info('not using Q')
 
 
     def run(self): 
@@ -94,14 +121,22 @@ class DataCollector:
             log.info('generate_episode step_i: %s,' % (step_i))
 
             # get action from state
-            inputs = env.transform_state(state)
+            if self.Q.has(state): 
+                log.info('state found in Q')
+                Q_s = self.Q.get(state)
+                a_star = np.argmax(Q_s)
+                log.debug('Q_s:%s, a_star: %s' % (Q_s, a_star))
+                action_id = a_star
+            else: 
+                log.info('state not found')
+                inputs = env.transform_state(state)
 
-            with torch.no_grad(): 
-                if torch.cuda.is_available(): 
-                    inputs = inputs.cuda()
-                outputs = env.model(inputs)
-                _, predicted = torch.max(outputs, 1)
-                action_id = predicted.item()
+                with torch.no_grad(): 
+                    if torch.cuda.is_available(): 
+                        inputs = inputs.cuda()
+                    outputs = env.model(inputs)
+                    _, predicted = torch.max(outputs, 1)
+                    action_id = predicted.item()
 
             # do next step, get next state
             next_state, reward, is_done = env.step(action_id)
@@ -135,6 +170,7 @@ class DataCollector:
 
 
 # main
+
 parser = argparse.ArgumentParser()
 parser.add_argument('--new', action='store_true', help='new training', default=False)
 args = parser.parse_args()

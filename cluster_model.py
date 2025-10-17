@@ -25,6 +25,14 @@ class ClusterModel:
         '''
         # load resnet18 model and remove the last layer.
         self.feature_model = resnet18(weights=ResNet18_Weights.DEFAULT)
+        num_classes = 4
+        num_ftrs = self.feature_model.fc.in_features
+        self.feature_model.fc = torch.nn.Linear(num_ftrs, num_classes)
+
+        model_file_name = 'model.resnet.v1'
+        self.feature_model.load_state_dict(torch.load(model_file_name))
+        # remove the last layer:
+        # (fc): Linear(in_features=512, out_features=4, bias=True)
         self.feature_model = torch.nn.Sequential(*list(self.feature_model.children())[:-1])
         self.feature_model.eval()
         if torch.cuda.is_available(): 
@@ -41,7 +49,7 @@ class ClusterModel:
         self.features = []
 
         self.CLUSTER_MODEL_FILE = 'model.cluster.kmeans'
-        self.n_clusters = 32
+        self.n_clusters = 8
         self.max_iter = 10000
         self.tol = 1e-4
         self.cluster_model = KMeans(n_clusters=self.n_clusters, max_iter=self.max_iter, tol=self.tol)
@@ -169,6 +177,7 @@ class ClusterModel:
         '''
         wei
         @param: image, cv2 BGR format
+        @deprecated
         '''
         return False
 
@@ -213,7 +222,7 @@ class ClusterModel:
 
 if __name__ == '__main__': 
     m = ClusterModel()
-    # m.train()
+    m.train()
     m.load()
 
     '''
@@ -222,55 +231,7 @@ if __name__ == '__main__':
         print('predict result: ', result)
     '''
 
-    image_path = './images/20251012_172225_0.png'
-    result = m.predict_file(image_path)
-    print('predict result: ', result)
-
-    image_path = './images/20251012_172838_36.png'
-    result = m.predict_file(image_path)
-    print('predict result: ', result)
-
-    image_path = './images/20251012_173251_121.png'
-    result = m.predict_file(image_path)
-    print('predict result: ', result)
-
-    image_path = './images/20251012_173646_141.png'
-    result = m.predict_file(image_path)
-    print('predict result: ', result)
-
-    image_path = './images/20251012_173858_3.png'
-    result = m.predict_file(image_path)
-    print('predict result: ', result)
-
-    image_path = './images/20251012_173858_12.png'
-    result = m.predict_file(image_path)
-    print('predict result: ', result)
-
-    image_path = './images/20251012_172838_37.png'
-    result = m.predict_file(image_path)
-    print('predict result: ', result)
-
-    image_path = './images/20251012_172838_38.png'
-    result = m.predict_file(image_path)
-    print('predict result: ', result)
-
-    image_path = './images/20251012_172838_39.png'
-    result = m.predict_file(image_path)
-    print('predict result: ', result)
-
-    image_path = './images/20251012_173050_64.png'
-    result = m.predict_file(image_path)
-    print('predict result: ', result)
-
-    image_path = './images/20251012_173251_133.png'
-    result = m.predict_file(image_path)
-    print('predict result: ', result)
-
-    image_path = './images/20251012_173646_139.png'
-    result = m.predict_file(image_path)
-    print('predict result: ', result)
-
-    image_path = './images/20251012_173646_140.png'
+    image_path = './images/20250930_164936_0.png'
     result = m.predict_file(image_path)
     print('predict result: ', result)
 

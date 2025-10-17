@@ -41,10 +41,10 @@ class Trainer:
         # MC paramaters
         self.Q = Storage(self.action_space)
         self.N = Storage(self.action_space)
-        self.GAMMA = 0.9
+        self.GAMMA = 0.85
 
         # episode parameters
-        self.MAX_EPISODES = 1000
+        self.MAX_EPISODES = 200
         self.next_episode = 0
         self.CHECKPOINT_FILE = 'checkpoint.pkl'
         self.JSON_FILE = 'checkpoint.json'

@@ -3,7 +3,7 @@ actions:
   IDLE:
     - ['delay', 0.1 ]
 
-  ATTACK: 
+  ATTACK: &ATTACK
     - ['press', 'w']
     - ['press_mouse', 'left']
     - ['delay', 0.1 ]
@@ -21,7 +21,7 @@ actions:
     - ['release_mouse', 'left']
     - ['release', 'w']
 
-  PARRY: 
+  PARRY: &PARRY
     - ['press_mouse', 'right']
     - ['press', 'w']
     - ['press_mouse', 'right']
@@ -31,10 +31,21 @@ actions:
     - ['release_mouse', 'right']
     - ['release', 'w']
 
-  SHIPO: 
+  SHIPO: &SHIPO
     - ['press', 'space']
     - ['delay', 0.1]
     - ['release', 'space']
+
+  DIANBU_ATTACK: 
+    - *SHIPO
+    - ['delay', 0.2]
+    - *ATTACK
+
+  STAND_UP: 
+    - *SHIPO
+    - ['delay', 0.2]
+    - *PARRY
+    - ['delay', 0.8]
 
   JUMP: 
     - ['press', 'f']
@@ -43,7 +54,7 @@ actions:
 
 
   NEXT_EPISODE: 
-    - ['delay', 15]
+    - ['delay', 5]
 
     - ['press', 'w']
     - ['delay', 0.7]
