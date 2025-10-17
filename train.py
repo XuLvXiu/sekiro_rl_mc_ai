@@ -223,8 +223,8 @@ class Trainer:
         save checkpoint for future use.
         '''
         log.info('save_checkpoint...')
-        log.info('Q: %s' % (self.Q.summary()))
-        log.info('N: %s' % (self.N.summary()))
+        log.info('Q: %s' % (self.Q.summary('Q')))
+        log.info('N: %s' % (self.N.summary('N')))
         log.info('do NOT terminate the power, still saving...')
         
         # pickle Q and N
@@ -256,8 +256,8 @@ class Trainer:
         except Exception as e: 
             log.error('ERROR load checkpoint: %s', (e))
 
-        log.info('Q: %s' % (self.Q.summary()))
-        log.info('N: %s' % (self.N.summary()))
+        log.info('Q: %s' % (self.Q.summary('Q')))
+        log.info('N: %s' % (self.N.summary('N')))
         log.debug(obj_information)
         return obj_information
 

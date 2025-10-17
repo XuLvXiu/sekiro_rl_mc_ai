@@ -27,7 +27,7 @@ actions:
     - ['press_mouse', 'right']
     - ['delay', 0.1 ]
 
-  RELEASE_PARRY: 
+  RELEASE_PARRY: &RELEASE_PARRY
     - ['release_mouse', 'right']
     - ['release', 'w']
     - ['delay', 0.1 ]
@@ -47,6 +47,14 @@ actions:
     - ['delay', 0.2]
     - *PARRY
     - ['delay', 0.8]
+
+  DIANBU_PARRY_ATTACK: 
+    - *SHIPO
+    - ['delay', 0.2]
+    - *PARRY
+    - ['delay', 0.8]
+    - *RELEASE_PARRY
+    - *ATTACK
 
   JUMP: 
     - ['press', 'f']

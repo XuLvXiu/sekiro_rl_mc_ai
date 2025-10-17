@@ -61,8 +61,8 @@ class DataCollector:
             log.info('loading Q')
             with open(CHECKPOINT_FILE, 'rb') as f: 
                 (self.Q, self.N) = pickle.load(f)
-                log.info('Q: %s' % (self.Q.summary()))
-                log.info('N: %s' % (self.N.summary()))
+                log.info('Q: %s' % (self.Q.summary('Q')))
+                log.info('N: %s' % (self.N.summary('N')))
 
             with open(JSON_FILE, 'r', encoding='utf-8') as f: 
                 obj_information = json.load(f)

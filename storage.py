@@ -65,7 +65,7 @@ class Storage:
         return len(self.obj)
 
 
-    def summary(self): 
+    def summary(self, name): 
         '''
         get the summary of the obj
         '''
@@ -74,7 +74,10 @@ class Storage:
 
         str_summary += '\n'
         for (k, v) in sorted(self.obj.items()): 
-            str_summary += 'state: %2s, Q_s(or N_s): %s, argmax: %s\n' % (k, v, np.argmax(v))
+            if name == 'Q': 
+                str_summary += 'state: %2s, argmax: %s, Q_s: %s\n' % (k, np.argmax(v), v)
+            else: 
+                str_summary += 'state: %2s, sum: %s, N_s: %s\n' % (k, np.sum(v), v)
 
         return str_summary 
     

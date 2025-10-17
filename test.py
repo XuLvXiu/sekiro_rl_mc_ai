@@ -57,7 +57,7 @@ env.eval()
 env.reset()
 state = env.get_state()
 
-arr_action_id = [env.ATTACK_ACTION_ID, 
+arr_action_id = [env.DIANBU_PARRY_ATTACK_ACTION_ID
 ]
 index = 0
 while True: 

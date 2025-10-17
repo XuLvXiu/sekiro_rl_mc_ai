@@ -36,14 +36,21 @@ class Env(object):
         # self.template_death = cv2.imread('./assets/death_crop.png', cv2.IMREAD_GRAYSCALE)
 
         # currently do not support JUMP
-        self.arr_action_name = ['IDLE', 'ATTACK', 'PARRY', 'SHIPO', 'DIANBU_ATTACK', 'STAND_UP', 'DOUBLE_ATTACK', 'JUMP']
+        self.arr_action_name = ['IDLE', 'ATTACK', 'PARRY', 'SHIPO', 
+            'DIANBU_ATTACK', 
+            'DOUBLE_ATTACK', 
+            'DIANBU_PARRY_ATTACK', 
+            'JUMP'
+        ]
         self.action_space = len(self.arr_action_name) - 1
 
-        self.IDLE_ACTION_ID             = 0
-        self.ATTACK_ACTION_ID           = 1
-        self.PARRY_ACTION_ID            = 2
-        self.SHIPO_ACTION_ID            = 3
-        self.DIANBU_ATTACK_ACTION_ID    = 4
+        self.IDLE_ACTION_ID                 = 0
+        self.ATTACK_ACTION_ID               = 1
+        self.PARRY_ACTION_ID                = 2
+        self.SHIPO_ACTION_ID                = 3
+        self.DIANBU_ATTACK_ACTION_ID        = 4
+        self.DOUBLE_ATTACK_ACTION_ID        = 5 
+        self.DIANBU_PARRY_ATTACK_ACTION_ID  = 6
 
         self.MODE_TRAIN = 'MODE_TRAIN'
         self.MODE_EVAL  = 'MODE_EVAL'
@@ -161,6 +168,12 @@ class Env(object):
             return True
 
         if action_id == self.DIANBU_ATTACK_ACTION_ID: 
+            return True
+
+        if action_id == self.DOUBLE_ATTACK_ACTION_ID: 
+            return True
+
+        if action_id == self.DIANBU_PARRY_ATTACK_ACTION_ID: 
             return True
 
         return False
