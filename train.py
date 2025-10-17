@@ -122,6 +122,13 @@ class Trainer:
                 log.info('Q_s: %s' % (Q_s))
                 log.info('probs: %s' % (probs))
                 action_id = np.random.choice(self.action_space, p=probs)
+                '''
+                # only train one state
+                ########################################
+                if self.Q.convert_state_to_key(state) < 7: 
+                    action_id = np.argmax(Q_s)
+                ########################################
+                '''
             else: 
                 log.info('state not found, using base-model')
                 obj_found_count['n'] += 1
