@@ -1,5 +1,14 @@
 #encoding=utf8
 
+'''
+Storage schema for Q and N, which are dict of array: 
+Q = {
+    state_key_1: [0, 0, 0, 0],
+    state_key_2: [0, 0, 0, 0],
+    ....
+}
+the length of the array is action_space.
+'''
 from collections import defaultdict
 import json
 import numpy as np

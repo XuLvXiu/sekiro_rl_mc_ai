@@ -47,6 +47,7 @@ actions:
     - ['delay', 0.2]
     - *PARRY
     - ['delay', 0.8]
+    - *RELEASE_PARRY
 
   DIANBU_PARRY_ATTACK: 
     - *SHIPO
@@ -55,6 +56,11 @@ actions:
     - ['delay', 0.8]
     - *RELEASE_PARRY
     - *ATTACK
+
+  TAKE_HULU: 
+    - ['press', 'p']
+    - ['delay', 0.1]
+    - ['release', 'p']
 
   JUMP: 
     - ['press', 'f']

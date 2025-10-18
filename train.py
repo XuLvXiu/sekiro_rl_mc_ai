@@ -115,7 +115,7 @@ class Trainer:
 
             # get action by state
             if self.Q.has(state): 
-                log.info('state found, using epsilon-greedy')
+                log.info('state[%s] found, using epsilon-greedy' % (self.Q.convert_state_to_key(state)))
                 obj_found_count['y'] += 1
                 Q_s = self.Q.get(state)
                 probs = self.get_probs(Q_s, epsilon)
@@ -130,7 +130,7 @@ class Trainer:
                 ########################################
                 '''
             else: 
-                log.info('state not found, using base-model')
+                log.info('state[%s] not found, using base-model' % (self.Q.convert_state_to_key(state)))
                 obj_found_count['n'] += 1
 
                 inputs = env.transform_state(state)
@@ -218,8 +218,9 @@ class Trainer:
 
             new_Q = self.Q.get(state)
             new_N = self.N.get(state)
-            log.debug('update_Q step_i: %s, old_Q[%s] old_N[%s] action[%s] reward[%s] G[%s] new_Q[%s] new_N[%s]' % (i,
+            log.debug('update_Q step_i: %s, old_Q[%s] old_N[%s] state[%s] action[%s] reward[%s] G[%s] new_Q[%s] new_N[%s]' % (i,
                 old_Q, old_N,
+                self.Q.convert_state_to_key(state),
                 arr_action[i], arr_reward[i],
                 G, 
                 new_Q, new_N))

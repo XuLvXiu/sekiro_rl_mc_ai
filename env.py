@@ -40,6 +40,7 @@ class Env(object):
             'DIANBU_ATTACK', 
             'DOUBLE_ATTACK', 
             'DIANBU_PARRY_ATTACK', 
+            'TAKE_HULU',
             'JUMP'
         ]
         self.action_space = len(self.arr_action_name) - 1
@@ -59,6 +60,9 @@ class Env(object):
         self.previous_action_id = -1
         self.previous_player_hp = 100
         self.previous_boss_hp   = 100
+        self.is_boss_dead = False
+        self.is_player_dead = False
+        self.player_life = 2
 
         self.model = None
         self.cluster_model = None
@@ -113,6 +117,7 @@ class Env(object):
                 image = global_enemy_window.color.copy()
                 state = {
                     'image': image,
+                    'is_player_hp_down': False,
                 }
                 inputs = self.transform_state(state)
 
@@ -123,7 +128,7 @@ class Env(object):
                     outputs = self.model(inputs)
 
                 log.debug('waiting for cluster model loading...')
-                self.cluster_model.predict_env_inputs(inputs, image)
+                self.cluster_model.predict_env_inputs(inputs, state)
 
                 return True
             time.sleep(1)
@@ -237,16 +242,22 @@ class Env(object):
 
         if self.mode == self.MODE_TRAIN: 
             if state['player_hp'] < 50: 
+                self.is_player_dead = True
+                self.player_life -= 1
                 return True
 
             if state['boss_hp'] < 80: 
+                self.is_boss_dead = True
                 return True
 
         if self.mode == self.MODE_EVAL: 
             if state['player_hp'] < 1: 
+                self.is_player_dead = True
+                self.player_life -= 1
                 return True
 
             if state['boss_hp'] < 1: 
+                self.is_boss_dead = True
                 return True
 
         return False
@@ -275,6 +286,10 @@ class Env(object):
         self.previous_action_id = -1
         self.previous_player_hp = 100
         self.previous_boss_hp   = 100
+        self.is_boss_dead       = False
+        self.is_player_dead     = False
+        self.player_life        = 2
+
         self.executor.interrupt_action()
 
 
@@ -303,12 +318,20 @@ class Env(object):
             'image': image,
             'player_hp': player_hp,
             'boss_hp': boss_hp,
+            'is_player_hp_down': False,
         }
 
-        inputs = self.transform_state(state)
-        state['cluster_class'] = self.cluster_model.predict_env_inputs(inputs, image)
+        player_hp_down = self.previous_player_hp - player_hp 
+        THRESHOLD = 3
+        if player_hp_down > THRESHOLD: 
+            # save the change of player hp to state
+            state['is_player_hp_down'] = True
 
-        log.debug('get new state, hp: %s %s, cluster_class: %s' % (state['player_hp'], state['boss_hp'], state['cluster_class']))
+
+        inputs = self.transform_state(state)
+        state['cluster_class'] = self.cluster_model.predict_env_inputs(inputs, state)
+
+        log.debug('get new state, hp: %5.2f %5.2f, cluster_class: %s' % (state['player_hp'], state['boss_hp'], state['cluster_class']))
 
         return state
 
@@ -327,8 +350,10 @@ class Env(object):
         is_done = self.check_done(new_state)
         (reward, log_reward) = self.cal_reward(new_state, action_id)
 
-        log.debug('new step end, hp[%s][%s] is_done[%s], reward[%s %s]' % (new_state['player_hp'], new_state['boss_hp'], 
-            is_done, reward, log_reward))
+        log.debug('new step end, hp[%s][%s] is_done[%s], is_dead[%s][%s], player_life[%s], reward[%s %s]' % (new_state['player_hp'], new_state['boss_hp'], 
+            is_done, self.is_player_dead, self.is_boss_dead,
+            self.player_life,
+            reward, log_reward))
 
         return (new_state, reward, is_done)
 
