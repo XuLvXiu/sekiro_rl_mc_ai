@@ -44,10 +44,7 @@ actions:
 
   STAND_UP: 
     - *SHIPO
-    - ['delay', 0.2]
     - *PARRY
-    - ['delay', 0.8]
-    - *RELEASE_PARRY
 
   DIANBU_PARRY_ATTACK: 
     - *SHIPO
@@ -58,9 +55,27 @@ actions:
     - *ATTACK
 
   TAKE_HULU: 
+    - ['press', 's']
+    - ['press', 'space']
+    - ['delay', 0.1]
+    - ['release', 'space']
+    - ['delay', 0.2]
+
+    - ['press', 'space']
+    - ['delay', 0.1]
+    - ['release', 'space']
+    - ['delay', 0.2]
+
+    - ['press', 'space']
+    - ['delay', 0.1]
+    - ['release', 'space']
+    - ['delay', 0.2]
+    - ['release', 's']
+
     - ['press', 'p']
     - ['delay', 0.1]
     - ['release', 'p']
+    - ['delay', 1.1]
 
   JUMP: 
     - ['press', 'f']

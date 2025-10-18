@@ -37,9 +37,15 @@ class Env(object):
 
         # currently do not support JUMP
         self.arr_action_name = ['IDLE', 'ATTACK', 'PARRY', 'SHIPO', 
+            # 4
             'DIANBU_ATTACK', 
+            # 5
             'DOUBLE_ATTACK', 
+            # 6
             'DIANBU_PARRY_ATTACK', 
+            # 7
+            'STAND_UP',
+            # 8
             'TAKE_HULU',
             'JUMP'
         ]
@@ -52,6 +58,8 @@ class Env(object):
         self.DIANBU_ATTACK_ACTION_ID        = 4
         self.DOUBLE_ATTACK_ACTION_ID        = 5 
         self.DIANBU_PARRY_ATTACK_ACTION_ID  = 6
+        self.STAND_UP_ACTION_ID             = 7
+        self.TAKE_HULU_ACTION_ID            = 8
 
         self.MODE_TRAIN = 'MODE_TRAIN'
         self.MODE_EVAL  = 'MODE_EVAL'
@@ -66,6 +74,8 @@ class Env(object):
 
         self.model = None
         self.cluster_model = None
+
+        self.HULU_THRESHOLD = 60
 
         # Initialize camera
         grabscreen.init_camera(target_fps=12)
@@ -117,7 +127,11 @@ class Env(object):
                 image = global_enemy_window.color.copy()
                 state = {
                     'image': image,
+                    'player_hp': 100,
+                    'boss_hp': 100,
                     'is_player_hp_down': False,
+                    'is_boss_hp_down': False,
+                    'HULU_THRESHOLD': self.HULU_THRESHOLD,
                 }
                 inputs = self.transform_state(state)
 
@@ -158,12 +172,16 @@ class Env(object):
 
     def is_parry(self, action_id): 
         '''
-        check if action_id is PARRY_ACTION_ID
+        check if action_id is parry related.
         '''
         if action_id == self.PARRY_ACTION_ID: 
             return True
 
+        if action_id == self.STAND_UP_ACTION_ID: 
+            return True
+
         return False
+
 
     def is_attack(self, action_id): 
         '''
@@ -183,9 +201,38 @@ class Env(object):
 
         return False
 
+
+    def is_take_hulu(self, action_id): 
+        if action_id == self.TAKE_HULU_ACTION_ID: 
+            return True
+
+        return False
+
+
     def is_shipo(self, action_id): 
         if action_id == self.SHIPO_ACTION_ID: 
             return True
+
+        return False
+
+
+    def is_dianbu(self, action_id): 
+        if action_id == self.SHIPO_ACTION_ID: 
+            return True
+
+        '''
+        if action_id == self.DIANBU_ATTACK_ACTION_ID: 
+            return True
+
+        if action_id == self.DIANBU_PARRY_ATTACK_ACTION_ID: 
+            return True
+
+        if action_id == self.STAND_UP_ACTION_ID: 
+            return True
+
+        if action_id == self.TAKE_HULU_ACTION_ID: 
+            return True
+        '''
 
         return False
 
@@ -241,7 +288,7 @@ class Env(object):
             sys.exit(-1)
 
         if self.mode == self.MODE_TRAIN: 
-            if state['player_hp'] < 50: 
+            if state['player_hp'] < 15: 
                 self.is_player_dead = True
                 self.player_life -= 1
                 return True
@@ -319,13 +366,18 @@ class Env(object):
             'player_hp': player_hp,
             'boss_hp': boss_hp,
             'is_player_hp_down': False,
+            'is_boss_hp_down': False,
+            'HULU_THRESHOLD': self.HULU_THRESHOLD,
         }
 
         player_hp_down = self.previous_player_hp - player_hp 
+        boss_hp_down = self.previous_boss_hp - boss_hp
         THRESHOLD = 3
         if player_hp_down > THRESHOLD: 
-            # save the change of player hp to state
             state['is_player_hp_down'] = True
+
+        if boss_hp_down > THRESHOLD: 
+            state['is_boss_hp_down'] = True
 
 
         inputs = self.transform_state(state)
@@ -376,6 +428,23 @@ class Env(object):
         THRESHOLD = 3
 
         log_reward += 'action:%s,' % (action_id)
+        
+        if self.is_take_hulu(action_id): 
+            if self.previous_player_hp > self.HULU_THRESHOLD: 
+                reward -= 110
+                log_reward += 'hulu&player_hp>threshold,'
+
+        if player_hp - self.previous_player_hp > THRESHOLD: 
+            reward += 100
+            log_reward += 'player_hp+,'
+            if not self.is_take_hulu(action_id): 
+                # reward -= 100
+                log.error('error: player_hp+, but player is NOT TAKE_HULU [current hp:%s][previous:%s]' % (player_hp, self.previous_player_hp))
+                # sys.exit(-1)
+        else: 
+            if self.is_take_hulu(action_id): 
+                reward -= 100
+                log_reward += 'hulu_failed,'
 
         if self.is_shipo(action_id): 
             reward -= 10
@@ -386,8 +455,10 @@ class Env(object):
             reward -= 20
             if self.is_attack(action_id): 
                 reward -= 30
-            if self.is_shipo(action_id): 
+                log_reward += 'is_attack,'
+            if self.is_dianbu(action_id): 
                 reward -= 50
+                log_reward += 'is_dianbu,'
 
             log_reward += 'player_hp-,'
 

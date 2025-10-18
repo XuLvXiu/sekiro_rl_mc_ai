@@ -158,7 +158,16 @@ class ClusterModel:
 
         # if player hp is down, this is a extra state
         if state['is_player_hp_down']: 
-            return self.n_clusters
+            class_id = self.n_clusters
+            log.info('extra state player_hp_down %s' % (class_id))
+            return class_id
+
+        # check if boss is stunned, and player hp less than threshold, this is a extra state to take hulu.
+        if state['is_boss_hp_down'] and state['player_hp'] < state['HULU_THRESHOLD']: 
+            class_id = self.n_clusters + 1
+            log.info('extra state take_hulu %s' % (class_id))
+            return class_id
+
 
         with torch.no_grad():
             if torch.cuda.is_available(): 
@@ -168,10 +177,6 @@ class ClusterModel:
             feature = outputs.squeeze()
 
         result = self.cluster_model.predict([feature.cpu()])
-
-        # check if state is 7, and hp less than xx, this is a extra state to take hulu.
-        if result[0] == 7 and state['player_hp'] < 60: 
-            return self.n_clusters + 1
 
         return result[0]
 

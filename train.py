@@ -122,8 +122,9 @@ class Trainer:
                 log.info('Q_s: %s' % (Q_s))
                 log.info('probs: %s' % (probs))
                 action_id = np.random.choice(self.action_space, p=probs)
+
                 '''
-                # only train one state
+                # only train some states
                 ########################################
                 if self.Q.convert_state_to_key(state) < 7: 
                     action_id = np.argmax(Q_s)
@@ -234,6 +235,7 @@ class Trainer:
         log.info('Q: %s' % (self.Q.summary('Q')))
         log.info('N: %s' % (self.N.summary('N')))
         log.info('do NOT terminate the power, still saving...')
+        log.info('actions: %s' % (self.env.arr_action_name))
         
         # pickle Q and N
         with open(self.CHECKPOINT_FILE, 'wb') as f:

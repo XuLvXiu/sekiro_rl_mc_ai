@@ -3,7 +3,6 @@
 import time
 import sys
 
-from log import log
 import os
 import numpy as np
 from storage import Storage
@@ -19,10 +18,10 @@ JSON_FILE = 'checkpoint.json'
 
 with open(CHECKPOINT_FILE, 'rb') as f: 
     (Q, N) = pickle.load(f)
-    log.info('Q: %s' % (Q.summary('Q')))
-    log.info('N: %s' % (N.summary('N')))
+    print('Q: %s' % (Q.summary('Q')))
+    print('N: %s' % (N.summary('N')))
 
 with open(JSON_FILE, 'r', encoding='utf-8') as f: 
     obj_information = json.load(f)
 
-log.info(obj_information)
+print(obj_information)
