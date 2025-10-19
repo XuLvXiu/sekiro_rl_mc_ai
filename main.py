@@ -118,6 +118,7 @@ while True:
     state = next_state
 
     if is_done: 
+        log.info('is_done(hp < 1), re-check')
         # one more double attack to kill(REN_SHA, deathblow) the BOSS or take a new life.
         if env.is_boss_dead: 
             time.sleep(0.1)
@@ -125,8 +126,11 @@ while True:
             # if boss dead, stop the game.
 
         if env.is_player_dead and env.player_life > 0: 
-            time.sleep(5)
+            time.sleep(10)
             env.take_action(env.ATTACK_ACTION_ID)
+            time.sleep(1)
+            env.is_player_dead = False
+            state = env.get_state()
             # if take a new life, continue the game
             continue
 
