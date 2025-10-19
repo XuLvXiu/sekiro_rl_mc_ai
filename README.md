@@ -15,7 +15,7 @@
 
 总之，这个 policy 比分类模型需要更少的人工协助即可以完成目标。
 
-当然，policy 是否成功并不是特别的重要，更重要的是在项目过程中，我们通过实践对 MC mthods 的原理与应用有了更为清晰的理解。
+当然，policy 是否成功并不是特别的重要，更为重要的是在项目过程中，我们通过实践对 MC methods 的原理与应用有了更为清晰的理解。
 
 
 ## 演示视频
@@ -29,7 +29,7 @@ https://www.bilibili.com/video//
 - steam 开始游戏
 - 游戏设置：图像设定 -- 屏幕模式设置为窗口，游戏分辨率调整为1280*720
 - 游戏设置：按键设置 -- ‘使用道具‘ 设置为按键 p, 动作（长按）吸引设置为按键 e. 重置视角/固定目标设置为 q，跳跃键为 f(未用到)，垫步/识破键为空格，鼠标左键攻击，右键防御
-- 把 '葫芦' 设置为第一个快捷使用的道具, 最好只设置这一个道具
+- 把 '伤药葫芦' 设置为第一个快捷使用的道具, 最好只设置这一个道具
 - 游戏设置：网络设定 -- 标题画面启动设定为 离线游玩.  目的是为了关闭残影，满地的残影烦死了。
 - 保持游戏窗口在最上层，不要最小化或者被其它的全屏窗口覆盖。
 
@@ -64,7 +64,7 @@ https://www.bilibili.com/video//
 
 再后来，我们在动作空间中加入了一些攻击的连招，比如垫步+攻击、垫步+防御+攻击、攻击+攻击，在 state-7(各种危) 中终于可以对 boss 造成伤害了。
 
-在训练的过程中，还会遇到一个问题，state-7 里面全是各种危，它在游戏中出现的概率非常低，会导致此 state 的训练量不足，尤其是随机选中的 action 极有可能使得游戏在极短时间内就结束，危的出现概率就更低了。所以在 state 0 ~ 6 训练的差不多的时候，就改了改代码，把 state 0 ~ 6 的随机性取消，只选择最优的 argmax 动作，这样游戏时间就会显著延长，危出现的概率就变大了。由此可见，epsilon 应该是 state 相关的，不应全部 state 共享同一个 epsilon.
+在训练的过程中，还会遇到一个问题，state-7 里面全是各种危，它在游戏中出现的概率非常低，会导致此 state 的训练量不足，尤其是随机选中的 action 极有可能使得游戏在极短时间内结束，危的出现概率就更低了。所以在 state 0 ~ 6 训练的差不多的时候，就改了改代码，把 state 0 ~ 6 的随机性取消，只选择最优的 argmax 动作，这样每个 episode 的游戏时间就会显著延长，危出现的概率就变大了。由此可见，epsilon 应该是 state 相关的，不应全部 state 共享同一个 epsilon.
 
 reward 的设计也非常的重要，这直接影响到了 policy 的打法，我们这个 policy 的打法是: 
 
@@ -83,33 +83,33 @@ reward 的设计也非常的重要，这直接影响到了 policy 的打法，�
 
 会在 assets 目录中生成 debug_ui_elements.jpg，该图片中会绘制游戏屏幕截图中的各个 window 区域
 
-同时还会弹出一个小窗口实时显示 player 与 boss 的 hp. 这个功能得感谢原作者。
+同时还会弹出一个小的 tk 窗口实时显示 player 与 boss 的 hp. 这个功能得感谢原作者。
 
 
 - 收集数据
 
 `python data_collector.py`
 
-按 ] 键开始或暂停收集; 
+按 ] 键开始收集; 
 
-所谓的收集，就是在分类模型与 MC policy 自动打游戏的过程中，定期对游戏屏幕的敌兵区域进行截屏(301x301)，以 list 的形式保存在内存中。
+所谓的收集，就是在使用分类模型与 MC policy 自动打游戏的过程中，定期对游戏屏幕的 boss 区域进行截屏(301x301)，以 list 的形式保存在内存中。
 
 一个 episode 结束的时候，内存中的数据集会被保存到硬盘文件中。
 
 按 Backspace 键，退出程序
 
-如果在命令行中使用了 `--new` 参数，会首先清除 images 目录中的全部文件
+如果在命令行中使用了 `--new` 参数，会首先清除 images 目录
 
-也可以不必收集，把图片分类项目中收集的图片文件 copy 到 images 目录中也可以。
+也可以不必收集，直接把图片分类项目中收集的图片文件 copy 到 images 目录中也可以，图片分类项目中的图片是人工打出来的，可能效果会更好一些吧。
 
 
 - 训练聚类模型
 
 `python cluster_model.py` 
 
-会结合图片分类项目中训练出来的 resnet 模型与 kmeans，训练出一个8分类的聚类模型 model.cluster.kmeans
+会结合图片分类项目中训练出来的 resnet 模型与 kmeans，训练出一个 8 分类的聚类模型 model.cluster.kmeans
 
-resnet 负责提取 images 目录中各个图片的特征，kmeans 对这些特征进行聚类，最后会把各个类的图片copy一份到 images/1 image/2 等子目录中。
+resnet 负责提取 images 目录中各个图片的特征，kmeans 对这些特征进行聚类，最后会把各个分类的图片 copy 一份到 images/1 image/2 等子目录中。
 
 在我们这次训练的过程中，images/7 里面是大量的各种危的图片，images/2 里面也有少量的危。
 
@@ -120,9 +120,11 @@ resnet 负责提取 images 目录中各个图片的特征，kmeans 对这些特�
 
 默认会加载 checkpoint 文件中的训练相关信息以及Q和N，然后在此基础上进行训练。
 
-如果在命令行中使用了 `--new` 参数，会从第0个 episode 开始重新训练。
+进入游戏后，按 q 键锁定 boss 之后，按 ] 键开始正式的训练。
 
-每一个 episode 结束之后，更新Q与N 并保存到 checkpoint 文件中。
+如果在命令行中使用了 `--new` 参数，会从第 0 个 episode 开始重新训练。
+
+每一个 episode 结束之后，更新 Q 与 N 并保存到 checkpoint 文件中。
 
 
 - 查看 Q与 N
@@ -177,4 +179,4 @@ python main.py
 - https://www.lapis.cafe/posts/ai-and-deep-learning/%E4%BD%BF%E7%94%A8resnet%E8%AE%AD%E7%BB%83%E4%B8%80%E4%B8%AA%E5%9B%BE%E7%89%87%E5%88%86%E7%B1%BB%E6%A8%A1%E5%9E%8B
 - https://blog.csdn.net/qq_36795658/article/details/100533639
 - https://blog.csdn.net/Guo_Python/article/details/134922730
-
+- 图片分类项目 https://github.com/XuLvXiu/sekiro_classifier_ai

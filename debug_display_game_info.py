@@ -112,6 +112,12 @@ class GameStatusApp:
         self.root = root
         self.root.title("Game Status")
 
+        w = 300 
+        h = 160
+        x = self.root.winfo_screenwidth() - w
+        y = self.root.winfo_screenheight() - h - 100
+        self.root.geometry("%dx%d+%d+%d" % (w, h, x, y))
+
         # 创建左右两个框架
         self.left_frame = tk.Frame(root)
         self.left_frame.pack(side=tk.LEFT, padx=10, pady=10)
