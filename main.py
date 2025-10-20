@@ -53,6 +53,7 @@ keyboard_listener.start()
 
 # create game env
 env = Env()
+env.create_game_status_window()
 env.eval()
 
 # load Q
@@ -71,6 +72,7 @@ with open(JSON_FILE, 'r', encoding='utf-8') as f:
     obj_information = json.load(f)
 
 log.info(obj_information)
+env.game_status.episode = obj_information['episode']
 
 '''
 # generate the policy
@@ -88,16 +90,25 @@ log.info('policy: %s' % (policy))
 env.reset()
 state = env.get_state()
 
+step_i = 0
 while True: 
     # log.info('predict main loop running')
     if not g_episode_is_running: 
         print('if you lock the boss already, press ] to begin the episode')
+        env.game_status.is_ai = False
+        env.update_game_status_window()
         time.sleep(1.0)
         env.reset()
         state = env.get_state()
         continue
 
+    env.game_status.is_ai = True
+
     t1 = time.time()
+
+    env.game_status.step_i     = step_i
+    env.game_status.state_id   = Q.convert_state_to_key(state)
+    env.update_game_status_window()
 
     # get action by state from Q
     if not Q.has(state): 
@@ -113,6 +124,8 @@ while True:
     next_state, reward, is_done = env.step(action_id)
     t2 = time.time()
     log.info('predict main loop end one epoch, time: %.2f s' % (t2-t1))
+
+    step_i += 1
 
     # prepare for next loop
     state = next_state
@@ -139,4 +152,5 @@ while True:
         break
 
 # end of while loop
+env.update_game_status_window()
 

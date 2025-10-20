@@ -19,6 +19,7 @@ class GameStatus():
         self.step_i             = 0
         self.episode            = 0
         self.error              = ''
+        self.mode               = ''
 
 
     def update_by_state(self, state): 
@@ -118,11 +119,12 @@ class GameStatusWindow():
         key = 'boss_hp'
         self.variables[key].set('%s: %.2f' % (key, self.game_status.boss_hp))
         self.labels[key].config(fg='black')
-        if self.game_status.is_player_hp_down: 
+        if self.game_status.is_boss_hp_down: 
             self.labels[key].config(fg='red')
 
         key = 'episode'
-        self.variables[key].set('%s: %s-%s' % (key, 
+        self.variables[key].set('[%s] %s: %s-%s' % (self.game_status.mode, 
+            key, 
             self.game_status.episode, self.game_status.step_i))
 
         key = 'error'
