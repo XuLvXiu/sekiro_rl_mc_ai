@@ -50,6 +50,11 @@ class GameStatusWindow():
         h = 500
         x = self.root.winfo_screenwidth() - w
         y = self.root.winfo_screenheight() - h - 100
+
+        w = 600
+        h = 250
+        x = -1
+        y = 720
         self.root.geometry("%dx%d+%d+%d" % (w, h, x, y))
 
         # frames
@@ -64,16 +69,17 @@ class GameStatusWindow():
         self.labels     = {}
 
         self.add_lable('is_ai', self.left_frame)
+        self.add_lable('empty', self.right_frame)
 
         self.add_lable('state_id', self.left_frame)
-        self.add_lable('action_name', self.left_frame)
+        self.add_lable('action_name', self.right_frame)
 
         self.add_lable('player_hp', self.left_frame)
-        self.add_lable('boss_hp', self.left_frame)
+        self.add_lable('boss_hp', self.right_frame)
 
         self.add_lable('episode', self.left_frame)
 
-        self.add_lable('error', self.left_frame)
+        self.add_lable('error', self.right_frame)
 
         # data source
         self.game_status = game_status
@@ -85,10 +91,10 @@ class GameStatusWindow():
         '''
         self.variables[key] = tk.StringVar()
         self.labels[key] = tk.Label(frame, textvariable=self.variables[key])
-        self.labels[key].config(font=('Arial', 16))
-        if key == 'is_ai': 
-            self.labels[key].config(font=('Arial', 48))
-        self.labels[key].pack(anchor="w", pady=20)
+        self.labels[key].config(font=('Consolas', 16))
+        if key == 'is_ai' or key == 'empty': 
+            self.labels[key].config(font=('Helvetica', 48))
+        self.labels[key].pack(anchor="w", pady=5)
 
 
     def update(self): 
@@ -103,6 +109,9 @@ class GameStatusWindow():
         else: 
             self.variables[key].set('人工')
             self.labels[key].config(fg='black')
+
+        key = 'empty'
+        self.variables[key].set('')
 
         key = 'action_name'
         self.variables[key].set('%s' % (self.game_status.action_name))

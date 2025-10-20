@@ -334,7 +334,7 @@ class Env(object):
         set mode
         '''
         self.mode = self.MODE_EVAL
-        self.game_status.mode = 'eval'
+        self.game_status.mode = 'EVAL'
         log.info('set new mode: %s' % (self.mode))
 
 
@@ -343,7 +343,7 @@ class Env(object):
         set mode
         '''
         self.mode = self.MODE_TRAIN
-        self.game_status.mode = 'train'
+        self.game_status.mode = 'TRAIN'
         log.info('set new mode: %s' % (self.mode))
 
 

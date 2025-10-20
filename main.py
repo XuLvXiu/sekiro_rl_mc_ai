@@ -107,6 +107,7 @@ while True:
     t1 = time.time()
 
     env.game_status.step_i     = step_i
+    env.game_status.error      = ''
     env.game_status.state_id   = Q.convert_state_to_key(state)
     env.update_game_status_window()
 

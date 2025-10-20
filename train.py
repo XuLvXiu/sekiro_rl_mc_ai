@@ -120,6 +120,7 @@ class Trainer:
             log.info('generate_episode step_i: %s,' % (step_i))
 
             self.env.game_status.step_i     = step_i
+            self.env.game_status.error      = ''
             self.env.game_status.state_id   = self.Q.convert_state_to_key(state)
             self.env.update_game_status_window()
 
