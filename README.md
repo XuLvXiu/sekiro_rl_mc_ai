@@ -22,7 +22,7 @@
 
 三周目白金的蒙特卡洛狼 再战 稀世强者弦一郎
 
-https://www.bilibili.com/video//
+https://www.bilibili.com/video/BV1gNWmzZExX/
 
 ## 游戏设置
 
