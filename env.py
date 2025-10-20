@@ -22,6 +22,7 @@ from pynput.keyboard import Listener, Key
 import numpy as np
 import os
 from cluster_model import ClusterModel
+from game_status_window import GameStatus, GameStatusWindow
 
 class Env(object): 
 
@@ -90,6 +91,24 @@ class Env(object):
         if not self.wait_for_game_window_and_model(): 
             log.debug("Failed to detect game window.")
             raise ValueError('...')
+
+        self.game_status = GameStatus()
+        self.game_status_window = None
+
+    
+    def create_game_status_window(self): 
+        '''
+        create a tiny game status window if you like.
+        '''
+        self.game_status_window = GameStatusWindow(self.game_status)
+
+
+    def update_game_status_window(self): 
+        '''
+        update game status window
+        '''
+        if self.game_status_window is not None: 
+            self.game_status_window.update()
 
 
     def wait_for_game_window_and_model(self): 
@@ -385,6 +404,10 @@ class Env(object):
 
         log.debug('get new state, hp: %5.2f %5.2f, cluster_class: %s' % (state['player_hp'], state['boss_hp'], state['cluster_class']))
 
+        # update game status
+        self.game_status.update_by_state(state)
+        self.update_game_status_window()
+
         return state
 
 
@@ -395,6 +418,9 @@ class Env(object):
         '''
 
         log.debug('new step begin, action_id: %s' % (action_id))
+        self.game_status.action_name = self.arr_action_name[action_id]
+        self.update_game_status_window()
+
         self.take_action(action_id)
 
         new_state = self.get_state()
@@ -440,6 +466,8 @@ class Env(object):
             if not self.is_take_hulu(action_id): 
                 # reward -= 100
                 log.error('error: player_hp+, but player is NOT TAKE_HULU [current hp:%s][previous:%s]' % (player_hp, self.previous_player_hp))
+                self.game_status.error = 'delayed player_hp+'
+                self.update_game_status_window()
                 # sys.exit(-1)
         else: 
             if self.is_take_hulu(action_id): 
@@ -467,6 +495,8 @@ class Env(object):
             log_reward += 'boss_hp-,'
             if not self.is_attack(action_id): 
                 log.error('error: boss_hp-, but player is NOT attack')
+                self.game_status.error = 'delayed boss_hp-'
+                self.update_game_status_window()
         else: 
             if self.is_attack(action_id): 
                 # even the boss-hp is not changed, player can interrupt boss-combo.
@@ -493,6 +523,7 @@ class Env(object):
         while self.executor.is_running(): 
             time.sleep(0.05)
 
+    
 
 if __name__ == '__main__': 
     global_is_running = False

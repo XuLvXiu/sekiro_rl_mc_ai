@@ -19,7 +19,6 @@ import time
 import argparse
 from storage import Storage
 
-
 class Trainer: 
     '''
     train a Monte-Carlo(MC) agent.
@@ -54,6 +53,8 @@ class Trainer:
             obj_information = self.load_checkpoint()
             self.next_episode = obj_information['episode']
 
+        self.env.create_game_status_window()
+
 
     def train(self): 
         '''
@@ -64,6 +65,7 @@ class Trainer:
             # decay
             epsilon = 1.0 / ((i+1) / self.MAX_EPISODES + 1)
             log.info('episode: %s, epsilon: %s' % (i, epsilon))
+            self.env.game_status.episode = i
 
             episode = self.generate_episode_from_Q(epsilon)
             self.update_Q(episode)
@@ -105,13 +107,21 @@ class Trainer:
             # log.info('generate_episode main loop running')
             if not g_episode_is_running: 
                 print('if you lock the boss already, press ] to begin the episode')
+                self.env.game_status.is_ai = False
+                self.env.update_game_status_window()
                 time.sleep(1.0)
                 env.reset()
                 state = env.get_state()
                 continue
 
+            self.env.game_status.is_ai = True
+
             t1 = time.time()
             log.info('generate_episode step_i: %s,' % (step_i))
+
+            self.env.game_status.step_i     = step_i
+            self.env.game_status.state_id   = self.Q.convert_state_to_key(state)
+            self.env.update_game_status_window()
 
             # get action by state
             if self.Q.has(state): 
@@ -164,6 +174,8 @@ class Trainer:
 
         log.info('episode done. length: %s, found_count: %s' % (len(episode), 
             obj_found_count))
+        self.env.update_game_status_window()
+
         return episode
 
 
