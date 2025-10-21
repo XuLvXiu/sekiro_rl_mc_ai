@@ -307,7 +307,8 @@ class Env(object):
             sys.exit(-1)
 
         if self.mode == self.MODE_TRAIN: 
-            if state['player_hp'] < 15: 
+            # if you want to train TAKE_HULU, pls decrease this value to 15.
+            if state['player_hp'] < 50: 
                 self.is_player_dead = True
                 self.player_life -= 1
                 return True
