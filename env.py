@@ -460,11 +460,11 @@ class Env(object):
         
         if self.is_take_hulu(action_id): 
             if self.previous_player_hp > self.HULU_THRESHOLD: 
-                reward -= 110
+                reward -= 50
                 log_reward += 'hulu&player_hp>threshold,'
 
         if player_hp - self.previous_player_hp > THRESHOLD: 
-            reward += 100
+            reward += 50
             log_reward += 'player_hp+,'
             if not self.is_take_hulu(action_id): 
                 # reward -= 100
@@ -474,7 +474,7 @@ class Env(object):
                 # sys.exit(-1)
         else: 
             if self.is_take_hulu(action_id): 
-                reward -= 100
+                reward -= 50
                 log_reward += 'hulu_failed,'
 
         if self.is_shipo(action_id): 
@@ -503,7 +503,7 @@ class Env(object):
         else: 
             if self.is_attack(action_id): 
                 # even the boss-hp is not changed, player can interrupt boss-combo.
-                # reward -= 10
+                reward -= 10
                 reward += 0
                 log_reward += 'boss_hp=,'
 
