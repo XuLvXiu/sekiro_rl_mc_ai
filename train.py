@@ -210,10 +210,16 @@ class Trainer:
 
         for i in range(0, length): 
             state = arr_state[i]
+
+            # old Q(s) and N(s)
             Q_s = self.Q.get(state)
             N_s = self.N.get(state)
+
+            # a
             action_id = arr_action[i]
 
+            # old Q(s, a) and old N(s, a)
+            # the variable names are inappropriate.
             old_Q = Q_s[action_id]
             old_N = N_s[action_id]
 
@@ -230,6 +236,8 @@ class Trainer:
             self.Q.set(state, action_id, avg)
             self.N.set(state, action_id, cnt)
 
+            # new Q(s) and new N(s)
+            # the variable names are inappropriate.
             new_Q = self.Q.get(state)
             new_N = self.N.get(state)
             log.debug('update_Q step_i: %s, old_Q[%s] old_N[%s] state[%s] action[%s] reward[%s] G[%s] new_Q[%s] new_N[%s]' % (i,
