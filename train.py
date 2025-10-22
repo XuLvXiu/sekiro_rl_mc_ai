@@ -161,6 +161,9 @@ class Trainer:
             step_i += 1
 
             # save to current episode
+            # S0, A0, R1
+            # ...   ...   ...
+            # S T-1, A T-1, R T
             episode.append((state, action_id, reward))
 
             # prepare for next loop
@@ -224,13 +227,17 @@ class Trainer:
             old_N = N_s[action_id]
 
             # G = the return that follows the [first] occurrence of s,a
-            # we do not need to collect reward from so much following states.
-            # so we can use GAMMA to decay the rewards.
+            # arr_reward[i] is R t+1
+            # arr_discount[0] is 1.0
+            # arr_discount[1] is GAMMA
+            # arr_discount[2] is GAMMA * GAMMA
+            # G = GAMMA * G + R t+1
             arr_reward_following = arr_reward[i:] * arr_discount[:-(1+i)]
             log.info('arr_reward_following: %s' % (arr_reward_following))
             G = sum(arr_reward_following)
 
-            # Q(s, a) = average(Return(s, a))
+            # add G to Returns(s, a)
+            # Q(s, a) = average(Returns(s, a))
             avg = old_Q + (G - old_Q)/(old_N+1)
             cnt = old_N + 1
             self.Q.set(state, action_id, avg)
